@@ -1,796 +1,393 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>eFootball Championship Hub</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        darkBg: '#0b0f19',
-                        cardBg: '#131c2e',
-                        accentGreen: '#10b981',
-                        accentCyan: '#06b6d4',
-                        accentDark: '#1f2937'
-                    }
-                }
-            }
-        }
-    </script>
-    <!-- FontAwesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        /* Custom Scrollbar for sleek look */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #0b0f19; }
-        ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #374151; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#09090f" />
+  <title>IAMBOT CUP | eFootball Tournament</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: { ink: '#09090f', panel: '#12121c', line: '#272738', neon: '#b6ff3b', violet: '#a855f7' }, boxShadow: { glow: '0 0 24px rgba(182,255,59,.12)' } } }
+    };
+  </script>
+  <style>
+    :root { color-scheme: dark; }
+    html { scroll-behavior: smooth; }
+    body { background: radial-gradient(ellipse at top, #17132b 0%, #09090f 45%); }
+    .glass { background: rgba(18,18,28,.88); border: 1px solid #29293c; backdrop-filter: blur(12px); }
+    .field { width:100%; border:1px solid #303044; border-radius:.75rem; background:#0b0b13; padding:.75rem .9rem; outline:none; color:#f4f4f5; }
+    .field:focus { border-color:#b6ff3b; box-shadow:0 0 0 2px rgba(182,255,59,.10); }
+    .btn { display:inline-flex; align-items:center; justify-content:center; gap:.5rem; border-radius:.75rem; padding:.7rem 1rem; font-weight:800; transition:.15s; }
+    .btn-primary { background:#b6ff3b; color:#111; } .btn-primary:hover { background:#c8ff69; transform:translateY(-1px); }
+    .btn-muted { background:#242436; color:#eee; border:1px solid #38384d; } .btn-danger { background:#451a24; color:#fecdd3; border:1px solid #7f1d32; }
+    .pill { border:1px solid #37374b; background:#1b1b2a; padding:.2rem .55rem; border-radius:999px; font-size:.72rem; }
+    .tab.active { background:#b6ff3b; color:#111; }
+    .table-wrap { overflow-x:auto; } table { width:100%; border-collapse:collapse; min-width:650px; } th { color:#a1a1aa; font-size:.72rem; text-transform:uppercase; letter-spacing:.08em; font-weight:800; } th,td { padding:.8rem .75rem; border-bottom:1px solid #29293c; text-align:left; } tbody tr:hover { background:rgba(255,255,255,.025); }
+    .bracket-card { min-width:190px; border:1px solid #303044; border-radius:1rem; overflow:hidden; background:#10101a; }
+    .team-line { display:flex; justify-content:space-between; align-items:center; gap:.5rem; padding:.7rem .75rem; font-size:.85rem; }
+    .team-line + .team-line { border-top:1px solid #29293c; }
+    .winner { color:#b6ff3b; font-weight:900; } .muted { color:#71717a; }
+    .status-dot { width:7px;height:7px;border-radius:50%;display:inline-block;background:#b6ff3b; }
+    .toast { position:fixed; right:1rem; bottom:1rem; z-index:80; max-width:min(92vw,420px); }
+    .hidden { display:none !important; }
+  </style>
 </head>
-<body class="bg-darkBg text-gray-100 min-h-screen font-sans flex flex-col justify-between selection:bg-accentGreen selection:text-black">
+<body class="min-h-screen text-zinc-100">
+  <header class="sticky top-0 z-40 border-b border-line bg-ink/90 backdrop-blur-xl">
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
+      <a href="#home" class="flex items-center gap-3">
+        <div class="grid h-10 w-10 place-items-center rounded-xl bg-neon font-black text-black shadow-glow">IB</div>
+        <div><div class="font-black tracking-wide">IAMBOT <span class="text-neon">CUP</span></div><div class="text-[10px] uppercase tracking-[.22em] text-zinc-500">eFootball tournament hub</div></div>
+      </a>
+      <nav class="hidden items-center gap-1 md:flex">
+        <a class="rounded-lg px-3 py-2 text-sm text-zinc-300 hover:bg-white/5" href="#register">Register</a>
+        <a class="rounded-lg px-3 py-2 text-sm text-zinc-300 hover:bg-white/5" href="#standings">Standings</a>
+        <a class="rounded-lg px-3 py-2 text-sm text-zinc-300 hover:bg-white/5" href="#brackets">Brackets</a>
+      </nav>
+      <button id="adminOpen" class="btn btn-muted text-sm">Admin Login</button>
+    </div>
+  </header>
 
-    <!-- Header / Navbar -->
-    <header class="bg-cardBg border-b border-gray-800 sticky top-0 z-50 shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-3">
-            <div class="flex items-center space-x-3">
-                <div class="bg-gradient-to-r from-emerald-500 to-cyan-500 text-black font-black p-2 rounded-lg text-xl tracking-wider uppercase shadow-md flex items-center gap-2">
-                    <i class="fa-solid fa-gamepad"></i> eFootball Hub
-                </div>
-            </div>
-            <nav class="flex flex-wrap justify-center gap-2 sm:gap-4 font-medium text-sm">
-                <button onclick="switchTab('register')" id="nav-register" class="px-4 py-2 rounded-lg transition-all bg-emerald-500 text-black font-semibold shadow">
-                    <i class="fa-solid fa-user-plus mr-1"></i> Register
-                </button>
-                <button onclick="switchTab('standings')" id="nav-standings" class="px-4 py-2 rounded-lg transition-all hover:bg-gray-800 text-gray-300">
-                    <i class="fa-solid fa-table-list mr-1"></i> Standings
-                </button>
-                <button onclick="switchTab('brackets')" id="nav-brackets" class="px-4 py-2 rounded-lg transition-all hover:bg-gray-800 text-gray-300">
-                    <i class="fa-solid fa-sitemap mr-1"></i> Brackets
-                </button>
-                <button onclick="switchTab('admin')" id="nav-admin" class="px-4 py-2 rounded-lg transition-all hover:bg-gray-800 text-gray-300">
-                    <i class="fa-solid fa-lock mr-1"></i> Admin
-                </button>
-            </nav>
+  <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12">
+    <section id="home" class="grid items-center gap-8 pb-12 lg:grid-cols-[1.2fr_.8fr]">
+      <div>
+        <div class="mb-4 inline-flex items-center gap-2 rounded-full border border-neon/25 bg-neon/5 px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-neon"><span class="status-dot"></span> Tournament control center</div>
+        <h1 class="max-w-3xl text-4xl font-black leading-tight sm:text-6xl">PROVE YOUR <span class="text-neon">DOMINANCE.</span></h1>
+        <p class="mt-5 max-w-2xl text-base leading-7 text-zinc-400 sm:text-lg">Register for the tournament, follow the group standings, and watch the road to the final unfold in real time.</p>
+        <div class="mt-7 flex flex-wrap gap-3"><a href="#register" class="btn btn-primary">Register to play <span>↗</span></a><a href="#brackets" class="btn btn-muted">View bracket</a></div>
+      </div>
+      <div class="glass rounded-3xl p-5 shadow-glow sm:p-7">
+        <div class="flex items-start justify-between"><div><p class="text-xs font-bold uppercase tracking-[.2em] text-zinc-500">Live tournament status</p><h2 class="mt-2 text-2xl font-black">THE ROAD TO GLORY</h2></div><span class="pill text-neon">LIVE DATA</span></div>
+        <div class="mt-6 grid grid-cols-3 gap-3">
+          <div class="rounded-2xl border border-line bg-black/20 p-4"><p class="text-xs text-zinc-500">Players</p><p id="heroPlayers" class="mt-2 text-2xl font-black">—</p></div>
+          <div class="rounded-2xl border border-line bg-black/20 p-4"><p class="text-xs text-zinc-500">Group games</p><p id="heroMatches" class="mt-2 text-2xl font-black">—</p></div>
+          <div class="rounded-2xl border border-line bg-black/20 p-4"><p class="text-xs text-zinc-500">Completed</p><p id="heroCompleted" class="mt-2 text-2xl font-black">—</p></div>
         </div>
-    </header>
+        <p class="mt-5 text-sm leading-6 text-zinc-500">Scores and standings update automatically when the administrator saves a result.</p>
+      </div>
+    </section>
 
-    <!-- Main Container -->
-    <main class="max-w-7xl mx-auto px-4 py-6 w-full flex-grow">
+    <section id="register" class="scroll-mt-24 py-8">
+      <div class="mb-5 flex flex-wrap items-end justify-between gap-3"><div><p class="text-xs font-black uppercase tracking-[.2em] text-neon">01 / Join the tournament</p><h2 class="mt-2 text-2xl font-black sm:text-3xl">Player Registration</h2></div><span class="pill">Registration form</span></div>
+      <div class="glass rounded-2xl p-5 sm:p-7">
+        <form id="registrationForm" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <label class="block text-sm font-semibold text-zinc-300">Player name<input class="field mt-2" name="name" maxlength="60" placeholder="Your name" required /></label>
+          <label class="block text-sm font-semibold text-zinc-300">In-game ID / User ID<input class="field mt-2" name="gameId" maxlength="60" placeholder="eFootball username or ID" required /></label>
+          <label class="block text-sm font-semibold text-zinc-300">WhatsApp / Contact<input class="field mt-2" name="contact" maxlength="40" placeholder="e.g. 080..." required /></label>
+          <div class="flex items-end sm:col-span-2 lg:col-span-3"><button id="registerBtn" class="btn btn-primary w-full sm:w-auto" type="submit">Submit registration <span>→</span></button><p class="ml-4 self-center text-xs text-zinc-500">Your entry is saved to the tournament database.</p></div>
+        </form>
+      </div>
+    </section>
 
-        <!-- 1. REGISTRATION TAB -->
-        <section id="tab-register" class="space-y-6 max-w-xl mx-auto">
-            <div class="bg-cardBg border border-gray-800 p-6 sm:p-8 rounded-2xl shadow-xl">
-                <div class="text-center mb-6">
-                    <h2 class="text-2xl font-bold tracking-tight text-white"><i class="fa-solid fa-shield-halved text-emerald-400 mr-2"></i>Tournament Registration</h2>
-                    <p class="text-sm text-gray-400 mt-1">Enter your details accurately to secure your slot in the tournament.</p>
-                </div>
-                <form id="registrationForm" onsubmit="handleRegistration(event)" class="space-y-4">
-                    <div>
-                        <label class="block text-xs uppercase font-bold text-gray-400 mb-1">Player Name / Team Name</label>
-                        <input type="text" id="regName" required placeholder="e.g. striker99" class="w-full bg-darkBg border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors">
-                    </div>
-                    <div>
-                        <label class="block text-xs uppercase font-bold text-gray-400 mb-1">In-Game ID / Konami ID / User ID</label>
-                        <input type="text" id="regGameId" required placeholder="e.g. 123-456-789" class="w-full bg-darkBg border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors">
-                    </div>
-                    <div>
-                        <label class="block text-xs uppercase font-bold text-gray-400 mb-1">WhatsApp / Contact Number</label>
-                        <input type="text" id="regContact" required placeholder="e.g. +2348012345678" class="w-full bg-darkBg border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors">
-                    </div>
-                    <button type="submit" id="regSubmitBtn" class="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-bold py-3 rounded-lg transition-all shadow-lg mt-2">
-                        Register Now
-                    </button>
-                </form>
-            </div>
+    <section id="standings" class="scroll-mt-24 py-8">
+      <div class="mb-5 flex flex-wrap items-end justify-between gap-3"><div><p class="text-xs font-black uppercase tracking-[.2em] text-neon">02 / Group stage</p><h2 class="mt-2 text-2xl font-black sm:text-3xl">League Standings</h2></div><span id="standingsCount" class="pill">0 players</span></div>
+      <div class="glass overflow-hidden rounded-2xl">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line p-4"><p class="text-sm text-zinc-400">Sorted by points, then goal difference, then goals scored.</p><span class="text-xs text-zinc-500">Win 3 pts · Draw 1 pt</span></div>
+        <div class="table-wrap"><table><thead><tr><th>#</th><th>Player</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th></tr></thead><tbody id="standingsBody"><tr><td colspan="10" class="text-center text-zinc-500">Connect Firebase to load standings.</td></tr></tbody></table></div>
+      </div>
+    </section>
 
-            <div class="bg-cardBg border border-gray-800 p-6 rounded-2xl shadow-xl">
-                <h3 class="text-lg font-bold text-white mb-3 flex items-center justify-between">
-                    <span><i class="fa-solid fa-users text-cyan-400 mr-2"></i>Registered Players</span>
-                    <span id="playerCountBadge" class="text-xs bg-gray-800 px-2.5 py-1 rounded-full text-cyan-400 font-mono">0 Players</span>
-                </h3>
-                <div class="overflow-x-auto max-h-64 overflow-y-auto">
-                    <table class="w-full text-left border-collapse text-sm">
-                        <thead>
-                            <tr class="border-b border-gray-800 text-gray-400 text-xs uppercase">
-                                <th class="py-2 px-3">#</th>
-                                <th class="py-2 px-3">Name</th>
-                                <th class="py-2 px-3">Game ID</th>
-                            </tr>
-                        </thead>
-                        <tbody id="publicPlayersList" class="divide-y divide-gray-800/50">
-                            <tr><td colspan="3" class="text-center py-4 text-gray-500">Loading registered players...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
+    <section id="brackets" class="scroll-mt-24 py-8">
+      <div class="mb-5"><p class="text-xs font-black uppercase tracking-[.2em] text-neon">03 / Knockout stage</p><h2 class="mt-2 text-2xl font-black sm:text-3xl">Championship Bracket</h2><p class="mt-2 text-sm text-zinc-500">Quarterfinal winners advance to the semifinals; semifinal winners advance to the final.</p></div>
+      <div id="bracketNotice" class="mb-4 rounded-xl border border-line bg-panel p-4 text-sm text-zinc-400">The administrator can assign players and enter scores from the admin dashboard.</div>
+      <div id="bracketView" class="grid gap-4 md:grid-cols-3">
+        <div class="glass rounded-2xl p-4"><h3 class="mb-3 font-black text-neon">QUARTERFINALS</h3><div id="qfCards" class="grid gap-3"></div></div>
+        <div class="glass rounded-2xl p-4"><h3 class="mb-3 font-black text-neon">SEMIFINALS</h3><div id="sfCards" class="grid gap-3"></div></div>
+        <div class="glass rounded-2xl p-4"><h3 class="mb-3 font-black text-neon">FINAL</h3><div id="finalCards" class="grid gap-3"></div><div id="championBox" class="mt-4 hidden rounded-xl border border-neon/30 bg-neon/5 p-4 text-center"><p class="text-xs uppercase tracking-widest text-zinc-500">Champion</p><p id="championName" class="mt-2 text-xl font-black text-neon"></p></div></div>
+      </div>
+    </section>
 
-        <!-- 2. STANDINGS TAB -->
-        <section id="tab-standings" class="hidden space-y-6">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-cardBg border border-gray-800 p-4 sm:p-6 rounded-2xl">
-                <div>
-                    <h2 class="text-2xl font-bold text-white"><i class="fa-solid fa-table-list text-emerald-400 mr-2"></i>Group Stage Standings</h2>
-                    <p class="text-sm text-gray-400">Live points table automatically ranked by Points and Goal Difference.</p>
-                </div>
-            </div>
-            
-            <div class="bg-cardBg border border-gray-800 rounded-2xl shadow-xl overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-sm">
-                        <thead>
-                            <tr class="bg-gray-900/60 border-b border-gray-800 text-gray-400 text-xs uppercase">
-                                <th class="py-3 px-4">Pos</th>
-                                <th class="py-3 px-4">Player / Team</th>
-                                <th class="py-3 px-3 text-center">P</th>
-                                <th class="py-3 px-3 text-center">W</th>
-                                <th class="py-3 px-3 text-center">D</th>
-                                <th class="py-3 px-3 text-center">L</th>
-                                <th class="py-3 px-3 text-center">GF</th>
-                                <th class="py-3 px-3 text-center">GA</th>
-                                <th class="py-3 px-3 text-center">GD</th>
-                                <th class="py-3 px-4 text-center font-bold text-white">Pts</th>
-                            </tr>
-                        </thead>
-                        <tbody id="standingsTableBody" class="divide-y divide-gray-800/50">
-                            <tr><td colspan="10" class="text-center py-6 text-gray-500">Loading standings...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+    <section id="adminPanel" class="hidden scroll-mt-24 py-8">
+      <div class="mb-5 flex flex-wrap items-end justify-between gap-3"><div><p class="text-xs font-black uppercase tracking-[.2em] text-neon">Private control room</p><h2 class="mt-2 text-2xl font-black sm:text-3xl">Admin Dashboard</h2></div><button id="adminLogout" class="btn btn-danger text-sm">Log out</button></div>
+      <div class="mb-5 flex flex-wrap gap-2 border-b border-line pb-4">
+        <button class="tab active btn btn-muted text-sm" data-tab="playersTab">Players</button><button class="tab btn btn-muted text-sm" data-tab="groupsTab">Group Scores</button><button class="tab btn btn-muted text-sm" data-tab="knockoutTab">Knockout Fixtures</button>
+      </div>
+      <div id="playersTab" class="admin-tab glass rounded-2xl p-4 sm:p-6">
+        <div class="mb-4 flex flex-wrap items-center justify-between gap-3"><h3 class="text-lg font-black">Registered players</h3><span id="adminPlayerCount" class="pill">0 players</span></div>
+        <div class="table-wrap"><table><thead><tr><th>Name</th><th>In-game ID</th><th>Contact</th><th>Registered</th><th>Action</th></tr></thead><tbody id="adminPlayersBody"></tbody></table></div>
+      </div>
+      <div id="groupsTab" class="admin-tab hidden glass rounded-2xl p-4 sm:p-6">
+        <h3 class="text-lg font-black">Add / update group-stage result</h3><p class="mb-5 mt-1 text-sm text-zinc-500">A saved result is used to calculate the standings. Saving the same player pairing updates its result.</p>
+        <form id="groupMatchForm" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <label class="text-sm font-semibold text-zinc-300">Player 1<select id="groupP1" class="field mt-2" required></select></label>
+          <label class="text-sm font-semibold text-zinc-300">Player 1 goals<input id="groupS1" class="field mt-2" type="number" min="0" max="99" required /></label>
+          <label class="text-sm font-semibold text-zinc-300">Player 2<select id="groupP2" class="field mt-2" required></select></label>
+          <label class="text-sm font-semibold text-zinc-300">Player 2 goals<input id="groupS2" class="field mt-2" type="number" min="0" max="99" required /></label>
+          <div class="flex items-end"><button class="btn btn-primary w-full" type="submit">Save result</button></div>
+        </form>
+        <div class="mt-7"><h4 class="mb-3 font-bold">Saved group matches</h4><div id="groupMatchesList" class="grid gap-2"></div></div>
+      </div>
+      <div id="knockoutTab" class="admin-tab hidden glass rounded-2xl p-4 sm:p-6">
+        <h3 class="text-lg font-black">Knockout fixtures & scores</h3><p class="mb-5 mt-1 text-sm text-zinc-500">Choose participants for quarterfinals. Winners are advanced automatically. If a score is tied, no winner advances until the score is changed.</p>
+        <div id="knockoutEditor" class="grid gap-4 lg:grid-cols-2"></div>
+      </div>
+      <div class="mt-5 rounded-xl border border-amber-400/20 bg-amber-400/5 p-4 text-xs leading-5 text-amber-100/80"><strong>Security note:</strong> the passcode gate in this standalone demo is only a front-end convenience. It cannot protect Firebase writes from someone inspecting the page. Before using real player/contact data, enable Firebase Authentication and restrictive Realtime Database Rules (or move admin writes behind a trusted backend). Do not treat the browser passcode as secure access control.</div>
+    </section>
 
-            <!-- Group Matches List (Public View) -->
-            <div class="bg-cardBg border border-gray-800 p-6 rounded-2xl shadow-xl">
-                <h3 class="text-lg font-bold text-white mb-4"><i class="fa-solid fa-futbol text-cyan-400 mr-2"></i>Fixture Results & Schedule</h3>
-                <div id="publicMatchesList" class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <p class="text-gray-500 text-sm">Loading matches...</p>
-                </div>
-            </div>
-        </section>
+    <footer class="mt-12 border-t border-line py-7 text-center text-xs text-zinc-600">© <span id="year"></span> IAMBOT CUP · Built for competition.</footer>
+  </main>
 
-        <!-- 3. BRACKETS TAB -->
-        <section id="tab-brackets" class="hidden space-y-6">
-            <div class="bg-cardBg border border-gray-800 p-6 rounded-2xl">
-                <h2 class="text-2xl font-bold text-white mb-1"><i class="fa-solid fa-sitemap text-emerald-400 mr-2"></i>Knockout Stage Brackets</h2>
-                <p class="text-sm text-gray-400">Quarterfinals, Semifinals, and Final tournament tree.</p>
-            </div>
+  <div id="loginModal" class="hidden fixed inset-0 z-50 grid place-items-center bg-black/75 p-4">
+    <div class="glass w-full max-w-md rounded-2xl p-6 sm:p-8">
+      <div class="mb-5 flex items-start justify-between"><div><p class="text-xs font-black uppercase tracking-widest text-neon">Restricted access</p><h2 class="mt-2 text-2xl font-black">Admin login</h2></div><button id="loginClose" class="text-2xl text-zinc-500" aria-label="Close">×</button></div>
+      <form id="loginForm"><label class="text-sm font-semibold text-zinc-300">Admin passcode<input id="adminPasscode" class="field mt-2" type="password" autocomplete="current-password" placeholder="Enter passcode" required /></label><p id="loginError" class="mt-2 hidden text-sm text-rose-400">Incorrect passcode.</p><button class="btn btn-primary mt-5 w-full" type="submit">Unlock dashboard</button></form>
+      <p class="mt-4 text-xs leading-5 text-zinc-500">Set your passcode in the JavaScript configuration section before publishing.</p>
+    </div>
+  </div>
+  <div id="toast" class="toast hidden rounded-xl border border-line bg-panel px-4 py-3 text-sm shadow-2xl"></div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Quarterfinals -->
-                <div class="space-y-4">
-                    <h3 class="font-bold text-sm uppercase tracking-wider text-cyan-400 border-b border-gray-800 pb-2">Quarterfinals</h3>
-                    <div id="bracket-qf" class="space-y-3">
-                        <!-- Populated by JS -->
-                    </div>
-                </div>
-                <!-- Semifinals -->
-                <div class="space-y-4 md:mt-8">
-                    <h3 class="font-bold text-sm uppercase tracking-wider text-cyan-400 border-b border-gray-800 pb-2">Semifinals</h3>
-                    <div id="bracket-sf" class="space-y-6">
-                        <!-- Populated by JS -->
-                    </div>
-                </div>
-                <!-- Finals -->
-                <div class="space-y-4 md:mt-16">
-                    <h3 class="font-bold text-sm uppercase tracking-wider text-emerald-400 border-b border-gray-800 pb-2">Final</h3>
-                    <div id="bracket-final" class="space-y-6">
-                        <!-- Populated by JS -->
-                    </div>
-                </div>
-            </div>
-        </section>
+  <!-- Firebase compat SDKs make this file easy to host as a static GitHub Pages site. -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script>
+    /******************************************************************
+     * SETUP
+     * 1) Create a Firebase project and enable Realtime Database.
+     * 2) Paste your web app config below.
+     * 3) Change ADMIN_PASSCODE before publishing.
+     * 4) Configure Firebase Database Rules; the browser passcode is NOT
+     *    secure authentication. See the security note in the dashboard.
+     ******************************************************************/
+    const firebaseConfig = {
+      apiKey: "PASTE_YOUR_FIREBASE_API_KEY",
+      authDomain: "PASTE_YOUR_PROJECT.firebaseapp.com",
+      databaseURL: "https://PASTE_YOUR_PROJECT-default-rtdb.firebaseio.com",
+      projectId: "PASTE_YOUR_PROJECT_ID",
+      storageBucket: "PASTE_YOUR_PROJECT.appspot.com",
+      messagingSenderId: "PASTE_YOUR_MESSAGING_SENDER_ID",
+      appId: "PASTE_YOUR_FIREBASE_APP_ID"
+    };
+    const ADMIN_PASSCODE = "CHANGE_THIS_PASSCODE";
 
-        <!-- 4. ADMIN TAB -->
-        <section id="tab-admin" class="hidden space-y-6 max-w-4xl mx-auto">
-            <!-- Login Box -->
-            <div id="adminLoginBox" class="bg-cardBg border border-gray-800 p-8 rounded-2xl shadow-xl max-w-md mx-auto">
-                <div class="text-center mb-6">
-                    <h2 class="text-2xl font-bold text-white"><i class="fa-solid fa-lock text-emerald-400 mr-2"></i>Admin Access</h2>
-                    <p class="text-sm text-gray-400 mt-1">Enter your secure passcode to manage the tournament.</p>
-                </div>
-                <form onsubmit="handleAdminLogin(event)" class="space-y-4">
-                    <div>
-                        <input type="password" id="adminPasscode" required placeholder="Enter passcode" class="w-full bg-darkBg border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-emerald-500 text-center tracking-widest text-lg">
-                    </div>
-                    <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-bold py-3 rounded-lg transition-all shadow-lg">
-                        Login to Dashboard
-                    </button>
-                </form>
-            </div>
+    const $ = (id) => document.getElementById(id);
+    const state = { db: null, players: {}, groupMatches: {}, knockout: {}, connected: false, admin: false };
+    const STAGES = [
+      { key: 'qf1', label: 'Quarterfinal 1', stage: 'qf' },
+      { key: 'qf2', label: 'Quarterfinal 2', stage: 'qf' },
+      { key: 'qf3', label: 'Quarterfinal 3', stage: 'qf' },
+      { key: 'qf4', label: 'Quarterfinal 4', stage: 'qf' },
+      { key: 'sf1', label: 'Semifinal 1', stage: 'sf', sources: ['qf1','qf2'] },
+      { key: 'sf2', label: 'Semifinal 2', stage: 'sf', sources: ['qf3','qf4'] },
+      { key: 'final', label: 'Final', stage: 'final', sources: ['sf1','sf2'] }
+    ];
+    const defaultKnockout = () => Object.fromEntries(STAGES.map(s => [s.key, { p1: '', p2: '', s1: '', s2: '' }]));
+    let toastTimer;
 
-            <!-- Dashboard Content (Hidden by default) -->
-            <div id="adminDashboardContent" class="hidden space-y-6">
-                <div class="bg-cardBg border border-gray-800 p-6 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <div>
-                        <h2 class="text-xl font-bold text-white"><i class="fa-solid fa-gauge text-emerald-400 mr-2"></i>Tournament Control Center</h2>
-                        <p class="text-xs text-gray-400">Manage players, initialize fixtures, and update scores.</p>
-                    </div>
-                    <button onclick="handleAdminLogout()" class="bg-gray-800 hover:bg-gray-700 text-red-400 text-xs px-4 py-2 rounded-lg font-bold transition-all border border-gray-700">
-                        <i class="fa-solid fa-right-from-bracket mr-1"></i> Logout
-                    </button>
-                </div>
-
-                <!-- Admin Action Sub-tabs -->
-                <div class="flex flex-wrap gap-2 border-b border-gray-800 pb-3">
-                    <button onclick="switchAdminSubTab('players')" id="admin-sub-players" class="px-4 py-2 text-xs font-bold rounded-lg bg-emerald-500 text-black transition-all">Manage Players</button>
-                    <button onclick="switchAdminSubTab('groupMatches')" id="admin-sub-groupMatches" class="px-4 py-2 text-xs font-bold rounded-lg bg-gray-800 text-gray-300 transition-all">Group Matches</button>
-                    <button onclick="switchAdminSubTab('knockouts')" id="admin-sub-knockouts" class="px-4 py-2 text-xs font-bold rounded-lg bg-gray-800 text-gray-300 transition-all">Knockout Brackets</button>
-                </div>
-
-                <!-- Sub-tab 1: Manage Players -->
-                <div id="admin-sec-players" class="space-y-4">
-                    <div class="bg-cardBg border border-gray-800 p-6 rounded-2xl">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="font-bold text-white">Registered Players List</h3>
-                            <button onclick="generateGroupFixtures()" class="bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold px-3 py-2 rounded-lg transition-all shadow">
-                                <i class="fa-solid fa-bolt mr-1"></i> Auto-Generate Group Fixtures
-                            </button>
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left text-sm">
-                                <thead>
-                                    <tr class="border-b border-gray-800 text-gray-400 text-xs uppercase">
-                                        <th class="py-2 px-3">Name</th>
-                                        <th class="py-2 px-3">Game ID</th>
-                                        <th class="py-2 px-3">Contact</th>
-                                        <th class="py-2 px-3 text-right">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="adminPlayersListBody" class="divide-y divide-gray-800/50">
-                                    <!-- Populated by JS -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Sub-tab 2: Group Matches -->
-                <div id="admin-sec-groupMatches" class="hidden space-y-4">
-                    <div class="bg-cardBg border border-gray-800 p-6 rounded-2xl">
-                        <h3 class="font-bold text-white mb-4">Update Group Match Scores</h3>
-                        <div id="adminMatchesList" class="space-y-3">
-                            <!-- Populated by JS -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Sub-tab 3: Knockouts -->
-                <div id="admin-sec-knockouts" class="hidden space-y-4">
-                    <div class="bg-cardBg border border-gray-800 p-6 rounded-2xl space-y-4">
-                        <div class="flex justify-between items-center">
-                            <h3 class="font-bold text-white">Manage Knockout Fixtures</h3>
-                            <button onclick="initializeBrackets()" class="bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold px-3 py-2 rounded-lg transition-all shadow">
-                                <i class="fa-solid fa-rotate mr-1"></i> Setup QF from Standings
-                            </button>
-                        </div>
-                        <div id="adminBracketsList" class="space-y-4">
-                            <!-- Populated by JS -->
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </section>
-
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-cardBg border-t border-gray-800 py-4 text-center text-xs text-gray-500 mt-12">
-        <p>eFootball Championship Hub &copy; 2026. All rights reserved.</p>
-    </footer>
-
-    <!-- Firebase SDK Setup & PAGA Config Integration -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, set, push, onValue, remove, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
-
-        // PAGA Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyAN56uV5NGiAbtDXXurdckh_6kg9F78ogY",
-            authDomain: "paga-cc0fe.firebaseapp.com",
-            databaseURL: "https://paga-cc0fe-default-rtdb.firebaseio.com",
-            projectId: "paga-cc0fe",
-            storageBucket: "paga-cc0fe.firebasestorage.app",
-            messagingSenderId: "746313094747",
-            appId: "1:746313094747:web:aa655b75c8b735470d117e",
-            measurementId: "G-Z6JN6TX56C"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-        const db = getDatabase(app);
-
-        // Make database functions globally accessible
-        window.dbRef = ref;
-        window.dbSet = set;
-        window.dbPush = push;
-        window.dbOnValue = onValue;
-        window.dbRemove = remove;
-        window.dbGet = get;
-        window.database = db;
-
-        // Trigger initial data listener load after firebase connects
-        initFirebaseListeners();
-    </script>
-
-    <!-- App Logic Script -->
-    <script>
-        // Tab Switcher
-        function switchTab(tabId) {
-            ['register', 'standings', 'brackets', 'admin'].forEach(id => {
-                document.getElementById(`tab-${id}`).classList.add('hidden');
-                const btn = document.getElementById(`nav-${id}`);
-                if(btn) {
-                    btn.className = "px-4 py-2 rounded-lg transition-all hover:bg-gray-800 text-gray-300";
-                }
-            });
-            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-            const activeBtn = document.getElementById(`nav-${tabId}`);
-            if(activeBtn) {
-                activeBtn.className = "px-4 py-2 rounded-lg transition-all bg-emerald-500 text-black font-semibold shadow";
-            }
-        }
-
-        function switchAdminSubTab(subId) {
-            ['players', 'groupMatches', 'knockouts'].forEach(id => {
-                document.getElementById(`admin-sec-${id}`).classList.add('hidden');
-                const btn = document.getElementById(`admin-sub-${id}`);
-                if(btn) btn.className = "px-4 py-2 text-xs font-bold rounded-lg bg-gray-800 text-gray-300 transition-all";
-            });
-            document.getElementById(`admin-sec-${subId}`).classList.remove('hidden');
-            const activeSubBtn = document.getElementById(`admin-sub-${subId}`);
-            if(activeSubBtn) activeSubBtn.className = "px-4 py-2 text-xs font-bold rounded-lg bg-emerald-500 text-black transition-all";
-        }
-
-        // Local cache of DB state
-        let globalPlayers = {};
-        let globalMatches = {};
-        let globalBrackets = {};
-
-        // Simple Admin Passcode (Change as desired)
-        const ADMIN_PASSCODE = "admin123";
-
-        function handleAdminLogin(e) {
-            e.preventDefault();
-            const val = document.getElementById('adminPasscode').value;
-            if(val === ADMIN_PASSCODE) {
-                localStorage.setItem('efootball_admin_auth', 'true');
-                document.getElementById('adminLoginBox').classList.add('hidden');
-                document.getElementById('adminDashboardContent').classList.remove('hidden');
-            } else {
-                alert('Incorrect passcode!');
-            }
-        }
-
-        function handleAdminLogout() {
-            localStorage.removeItem('efootball_admin_auth');
-            document.getElementById('adminDashboardContent').classList.add('hidden');
-            document.getElementById('adminLoginBox').classList.remove('hidden');
-            document.getElementById('adminPasscode').value = '';
-        }
-
-        // Check persistent admin auth on load
-        window.addEventListener('DOMContentLoaded', () => {
-            if(localStorage.getItem('efootball_admin_auth') === 'true') {
-                document.getElementById('adminLoginBox').classList.add('hidden');
-                document.getElementById('adminDashboardContent').classList.remove('hidden');
-            }
+    function toast(message, isError = false) {
+      const el = $('toast'); el.textContent = message;
+      el.className = `toast rounded-xl border px-4 py-3 text-sm shadow-2xl ${isError ? 'border-rose-500/40 bg-rose-950 text-rose-100' : 'border-neon/30 bg-panel text-zinc-100'}`;
+      clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.add('hidden'), 3500);
+    }
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+    function playerName(id) { return state.players[id]?.name || (id ? 'Unknown player' : 'TBD'); }
+    function hasFirebaseConfig() {
+      return firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith('PASTE_') &&
+        firebaseConfig.projectId && !firebaseConfig.projectId.startsWith('PASTE_') &&
+        firebaseConfig.databaseURL && !firebaseConfig.databaseURL.includes('PASTE_YOUR_PROJECT');
+    }
+    function initFirebase() {
+      if (!hasFirebaseConfig()) {
+        $('standingsBody').innerHTML = '<tr><td colspan="10" class="text-center text-amber-200">Firebase is not configured yet. Paste your Firebase credentials in the setup section of index.html.</td></tr>';
+        $('bracketNotice').textContent = 'Firebase is not configured. Paste your Firebase web app credentials in the setup section to enable live data.';
+        renderBracket(); return;
+      }
+      try {
+        firebase.initializeApp(firebaseConfig);
+        state.db = firebase.database();
+        state.db.ref('.info/connected').on('value', snap => {
+          state.connected = !!snap.val();
+          if (!state.connected) console.info('Firebase Realtime Database is disconnected.');
         });
+        state.db.ref('players').on('value', snap => { state.players = snap.val() || {}; renderAll(); }, handleFirebaseError);
+        state.db.ref('groupMatches').on('value', snap => { state.groupMatches = snap.val() || {}; renderAll(); }, handleFirebaseError);
+        state.db.ref('knockout').on('value', snap => {
+          state.knockout = snap.val() || {};
+          // Fill absent stage records locally for rendering; never overwrite existing records here.
+          STAGES.forEach(s => { if (!state.knockout[s.key]) state.knockout[s.key] = {p1:'',p2:'',s1:'',s2:''}; });
+          renderAll();
+        }, handleFirebaseError);
+        $('bracketNotice').textContent = 'Live tournament data is connected to Firebase.';
+      } catch (err) { console.error(err); toast('Firebase could not initialize. Check your configuration.', true); }
+    }
+    function handleFirebaseError(error) {
+      console.error(error);
+      toast('Firebase error: ' + (error?.message || 'check your database rules'), true);
+    }
+    function allPlayers() {
+      return Object.entries(state.players).map(([id, p]) => ({ id, ...p })).sort((a,b) => (a.name||'').localeCompare(b.name||''));
+    }
+    function completedGroupMatches() {
+      return Object.values(state.groupMatches).filter(m => m && m.p1 && m.p2 && m.p1 !== m.p2 && Number.isFinite(Number(m.s1)) && Number.isFinite(Number(m.s2)));
+    }
+    function computeStandings() {
+      const table = {};
+      allPlayers().forEach(p => table[p.id] = { id:p.id, name:p.name || 'Unnamed', P:0, W:0, D:0, L:0, GF:0, GA:0, GD:0, Pts:0 });
+      completedGroupMatches().forEach(m => {
+        if (!table[m.p1] || !table[m.p2]) return;
+        const a = table[m.p1], b = table[m.p2], x = Number(m.s1), y = Number(m.s2);
+        a.P++; b.P++; a.GF += x; a.GA += y; b.GF += y; b.GA += x;
+        if (x > y) { a.W++; a.Pts += 3; b.L++; }
+        else if (x < y) { b.W++; b.Pts += 3; a.L++; }
+        else { a.D++; b.D++; a.Pts++; b.Pts++; }
+      });
+      return Object.values(table).map(p => ({...p, GD:p.GF-p.GA})).sort((a,b) => b.Pts-a.Pts || b.GD-a.GD || b.GF-a.GF || a.name.localeCompare(b.name));
+    }
+    function renderStandings() {
+      const rows = computeStandings();
+      $('standingsCount').textContent = `${rows.length} player${rows.length === 1 ? '' : 's'}`;
+      if (!rows.length) {
+        $('standingsBody').innerHTML = '<tr><td colspan="10" class="text-center text-zinc-500">No registrations yet. Be the first to join.</td></tr>'; return;
+      }
+      $('standingsBody').innerHTML = rows.map((p,i) => `<tr><td class="font-black ${i===0?'text-neon':''}">${String(i+1).padStart(2,'0')}</td><td><div class="font-bold">${escapeHtml(p.name)}</div><div class="text-xs text-zinc-500">${escapeHtml(state.players[p.id]?.gameId || '')}</div></td><td>${p.P}</td><td>${p.W}</td><td>${p.D}</td><td>${p.L}</td><td>${p.GF}</td><td>${p.GA}</td><td class="${p.GD>0?'text-neon':p.GD<0?'text-rose-300':''}">${p.GD>0?'+':''}${p.GD}</td><td class="font-black text-neon">${p.Pts}</td></tr>`).join('');
+    }
+    function renderPlayerAdmin() {
+      const players = allPlayers();
+      $('adminPlayerCount').textContent = `${players.length} player${players.length===1?'':'s'}`;
+      $('adminPlayersBody').innerHTML = players.length ? players.map(p => `<tr><td class="font-bold">${escapeHtml(p.name)}</td><td>${escapeHtml(p.gameId)}</td><td>${escapeHtml(p.contact)}</td><td class="text-xs text-zinc-500">${p.createdAt ? escapeHtml(new Date(p.createdAt).toLocaleDateString()) : '—'}</td><td><button class="btn btn-danger text-xs" data-delete-player="${escapeHtml(p.id)}">Delete</button></td></tr>`).join('') : '<tr><td colspan="5" class="text-center text-zinc-500">No players registered.</td></tr>';
+      const options = players.map(p => `<option value="${escapeHtml(p.id)}">${escapeHtml(p.name)} · ${escapeHtml(p.gameId)}</option>`).join('');
+      ['groupP1','groupP2'].forEach(id => { const old = $(id).value; $(id).innerHTML = '<option value="">Select player…</option>'+options; if (players.some(p=>p.id===old)) $(id).value=old; });
+      renderGroupMatches(); renderKnockoutEditor();
+    }
+    function renderGroupMatches() {
+      const matches = Object.entries(state.groupMatches).sort((a,b) => (b[1]?.updatedAt||0)-(a[1]?.updatedAt||0));
+      $('groupMatchesList').innerHTML = matches.length ? matches.map(([id,m]) => `<div class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-black/20 p-3"><div class="text-sm"><span class="font-semibold">${escapeHtml(playerName(m.p1))}</span> <span class="mx-2 rounded bg-neon/10 px-2 py-1 font-black text-neon">${escapeHtml(m.s1)} – ${escapeHtml(m.s2)}</span> <span class="font-semibold">${escapeHtml(playerName(m.p2))}</span></div><button class="btn btn-danger text-xs" data-delete-match="${escapeHtml(id)}">Delete</button></div>`).join('') : '<p class="text-sm text-zinc-500">No group scores entered yet.</p>';
+    }
+    function getKnockout() {
+      const k = {...defaultKnockout()};
+      STAGES.forEach(s => { k[s.key] = {...k[s.key], ...(state.knockout[s.key]||{})}; });
+      // Winners are derived from scores, so later rounds update automatically.
+      ['sf1','sf2','final'].forEach(key => {
+        const stage = STAGES.find(s=>s.key===key), target = k[key];
+        if (!stage.sources) return;
+        const w1 = winnerOf(k[stage.sources[0]]), w2 = winnerOf(k[stage.sources[1]]);
+        target.p1 = w1 || ''; target.p2 = w2 || '';
+      });
+      return k;
+    }
+    function winnerOf(m) {
+      if (!m || !m.p1 || !m.p2 || m.s1 === '' || m.s2 === '' || !Number.isFinite(Number(m.s1)) || !Number.isFinite(Number(m.s2))) return '';
+      if (Number(m.s1) === Number(m.s2)) return '';
+      return Number(m.s1) > Number(m.s2) ? m.p1 : m.p2;
+    }
+    function matchCard(key, label, m, compact=false) {
+      const win = winnerOf(m);
+      const p1 = m?.p1 || '', p2 = m?.p2 || '';
+      const s1 = m?.s1 ?? '', s2 = m?.s2 ?? '';
+      return `<div class="bracket-card w-full"><div class="border-b border-line bg-white/[.025] px-3 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-500">${escapeHtml(label)}</div>
+        <div class="team-line ${win&&win===p1?'winner':''}"><span class="truncate">${escapeHtml(playerName(p1))}</span><strong>${s1===''?'—':escapeHtml(s1)}</strong></div>
+        <div class="team-line ${win&&win===p2?'winner':''}"><span class="truncate">${escapeHtml(playerName(p2))}</span><strong>${s2===''?'—':escapeHtml(s2)}</strong></div>
+        ${!p1||!p2?'<div class="border-t border-line px-3 py-2 text-[10px] text-zinc-600">Waiting for players</div>':''}</div>`;
+    }
+    function renderBracket() {
+      const k = getKnockout();
+      $('qfCards').innerHTML = STAGES.filter(s=>s.stage==='qf').map(s=>matchCard(s.key,s.label,k[s.key])).join('');
+      $('sfCards').innerHTML = STAGES.filter(s=>s.stage==='sf').map(s=>matchCard(s.key,s.label,k[s.key])).join('');
+      $('finalCards').innerHTML = matchCard('final','Grand Final',k.final);
+      const champion = winnerOf(k.final);
+      $('championBox').classList.toggle('hidden', !champion);
+      $('championName').textContent = champion ? playerName(champion) : '';
+    }
+    function renderKnockoutEditor() {
+      if (!state.admin) return;
+      const players = allPlayers();
+      const opts = (selected, allowBlank=true) => (allowBlank?'<option value="">Select player…</option>':'') + players.map(p=>`<option value="${escapeHtml(p.id)}" ${selected===p.id?'selected':''}>${escapeHtml(p.name)} · ${escapeHtml(p.gameId)}</option>`).join('');
+      const k = getKnockout();
+      $('knockoutEditor').innerHTML = STAGES.map(s => {
+        const m = k[s.key] || {};
+        const derived = !!s.sources;
+        return `<form class="rounded-xl border border-line bg-black/20 p-4" data-knockout-form="${s.key}"><div class="mb-3 flex items-center justify-between gap-2"><h4 class="font-black">${escapeHtml(s.label)}</h4><span class="pill">${derived?'Auto-advanced':'Set players'}</span></div>
+          <div class="grid grid-cols-[1fr_76px] gap-2"><label class="text-xs text-zinc-500">Player 1<select name="p1" class="field mt-1" ${derived?'disabled':''} required>${opts(m.p1)}</select></label><label class="text-xs text-zinc-500">Goals<input name="s1" class="field mt-1" type="number" min="0" max="99" value="${m.s1??''}" ${!m.p1||!m.p2?'':' '} required /></label>
+          <label class="text-xs text-zinc-500">Player 2<select name="p2" class="field mt-1" ${derived?'disabled':''} required>${opts(m.p2)}</select></label><label class="text-xs text-zinc-500">Goals<input name="s2" class="field mt-1" type="number" min="0" max="99" value="${m.s2??''}" required /></label></div>
+          ${derived?'<p class="mt-2 text-xs text-zinc-500">Players come from the previous round winners.</p>':''}
+          <button class="btn btn-primary mt-3 w-full text-sm" type="submit">Save fixture & score</button></form>`;
+      }).join('');
+    }
+    function renderAll() {
+      $('heroPlayers').textContent = allPlayers().length;
+      $('heroMatches').textContent = Object.keys(state.groupMatches).length;
+      $('heroCompleted').textContent = completedGroupMatches().length;
+      renderStandings(); renderBracket();
+      if (state.admin) renderPlayerAdmin();
+    }
 
-        // ==========================================
-        // FIREBASE DATA LISTENERS & RENDERING
-        // ==========================================
-        function initFirebaseListeners() {
-            if(!window.database) return;
+    $('registrationForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      if (!state.db) return toast('Firebase is not configured. Add your credentials in the setup section.', true);
+      const form = new FormData(e.currentTarget);
+      const player = { name:String(form.get('name')).trim(), gameId:String(form.get('gameId')).trim(), contact:String(form.get('contact')).trim(), createdAt:Date.now() };
+      if (!player.name || !player.gameId || !player.contact) return toast('Please complete every field.', true);
+      if (allPlayers().some(p => p.gameId.toLowerCase() === player.gameId.toLowerCase())) return toast('That in-game ID is already registered.', true);
+      const btn = $('registerBtn'); btn.disabled=true; btn.textContent='Submitting…';
+      try {
+        await state.db.ref('players').push(player);
+        e.currentTarget.reset(); toast('Registration submitted successfully. Good luck!');
+      } catch (err) { handleFirebaseError(err); }
+      finally { btn.disabled=false; btn.innerHTML='Submit registration <span>→</span>'; }
+    });
 
-            // 1. Listen to Players
-            window.dbOnValue(window.dbRef(window.database, 'players'), (snapshot) => {
-                globalPlayers = snapshot.val() || {};
-                renderPlayers();
-                renderStandings();
-            });
+    $('adminOpen').addEventListener('click', () => { $('loginModal').classList.remove('hidden'); $('adminPasscode').focus(); });
+    $('loginClose').addEventListener('click', () => $('loginModal').classList.add('hidden'));
+    $('loginModal').addEventListener('click', e => { if (e.target === $('loginModal')) $('loginModal').classList.add('hidden'); });
+    $('loginForm').addEventListener('submit', e => {
+      e.preventDefault();
+      if ($('adminPasscode').value === ADMIN_PASSCODE && ADMIN_PASSCODE !== 'CHANGE_THIS_PASSCODE') {
+        state.admin=true; $('loginModal').classList.add('hidden'); $('loginError').classList.add('hidden'); $('adminPanel').classList.remove('hidden'); $('adminOpen').textContent='Admin Dashboard'; renderPlayerAdmin(); $('adminPanel').scrollIntoView({behavior:'smooth'});
+      } else { $('loginError').classList.remove('hidden'); }
+    });
+    $('adminLogout').addEventListener('click', () => { state.admin=false; $('adminPanel').classList.add('hidden'); $('adminOpen').textContent='Admin Login'; $('adminPasscode').value=''; });
+    document.querySelectorAll('[data-tab]').forEach(btn => btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b===btn));
+      document.querySelectorAll('.admin-tab').forEach(panel=>panel.classList.toggle('hidden',panel.id!==btn.dataset.tab));
+    }));
 
-            // 2. Listen to Matches
-            window.dbOnValue(window.dbRef(window.database, 'matches'), (snapshot) => {
-                globalMatches = snapshot.val() || {};
-                renderMatches();
-                renderStandings();
-            });
+    $('adminPlayersBody').addEventListener('click', async e => {
+      const btn=e.target.closest('[data-delete-player]'); if(!btn) return;
+      const id=btn.dataset.deletePlayer;
+      if(!state.admin || !confirm('Delete this player? Existing matches involving them will remain but will not count in standings.')) return;
+      try { await state.db.ref('players/'+id).remove(); toast('Player deleted.'); } catch(err){handleFirebaseError(err);}
+    });
+    $('groupMatchForm').addEventListener('submit', async e => {
+      e.preventDefault(); if(!state.admin||!state.db) return;
+      const p1=$('groupP1').value,p2=$('groupP2').value,s1=$('groupS1').value,s2=$('groupS2').value;
+      if(!p1||!p2||p1===p2) return toast('Choose two different players.',true);
+      if(s1===''||s2===''||Number(s1)<0||Number(s2)<0) return toast('Enter valid scores.',true);
+      const existing=Object.entries(state.groupMatches).find(([,m]) => m && ((m.p1===p1&&m.p2===p2)||(m.p1===p2&&m.p2===p1)));
+      const id=existing?.[0] || state.db.ref('groupMatches').push().key;
+      const record={p1,p2,s1:Number(s1),s2:Number(s2),updatedAt:Date.now()};
+      // Keep the entered orientation consistent with the original fixture when updating a reversed pairing.
+      if(existing && existing[1].p1===p2 && existing[1].p2===p1) { record.p1=p2; record.p2=p1; record.s1=Number(s2); record.s2=Number(s1); }
+      try { await state.db.ref('groupMatches/'+id).set(record); e.currentTarget.reset(); toast('Group result saved; standings recalculated.'); }
+      catch(err){handleFirebaseError(err);}
+    });
+    $('groupMatchesList').addEventListener('click', async e => {
+      const btn=e.target.closest('[data-delete-match]'); if(!btn||!state.admin||!state.db) return;
+      if(!confirm('Delete this group result?')) return;
+      try { await state.db.ref('groupMatches/'+btn.dataset.deleteMatch).remove(); toast('Group result deleted.'); } catch(err){handleFirebaseError(err);}
+    });
+    $('knockoutEditor').addEventListener('submit', async e => {
+      const form=e.target.closest('[data-knockout-form]'); if(!form) return;
+      e.preventDefault(); if(!state.admin||!state.db) return;
+      const key=form.dataset.knockoutForm, stage=STAGES.find(s=>s.key===key), fd=new FormData(form);
+      let p1=String(fd.get('p1')||''),p2=String(fd.get('p2')||'');
+      const s1=String(fd.get('s1')??''),s2=String(fd.get('s2')??'');
+      if(stage.sources) { const k=getKnockout(); p1=k[key].p1; p2=k[key].p2; }
+      if(!p1||!p2||p1===p2) return toast('Select two different players / wait for previous-round winners.',true);
+      if(s1===''||s2===''||Number(s1)<0||Number(s2)<0) return toast('Enter valid scores.',true);
+      try {
+        // Store only participant choices and score; downstream participants are derived from winners.
+        await state.db.ref('knockout/'+key).set({p1,p2,s1:Number(s1),s2:Number(s2),updatedAt:Date.now()});
+        toast('Knockout result saved. Winners advanced automatically.');
+      } catch(err){handleFirebaseError(err);}
+    });
 
-            // 3. Listen to Brackets
-            window.dbOnValue(window.dbRef(window.database, 'brackets'), (snapshot) => {
-                globalBrackets = snapshot.val() || {};
-                renderBrackets();
-            });
-        }
-
-        // Register Player Action
-        function handleRegistration(e) {
-            e.preventDefault();
-            const name = document.getElementById('regName').value.trim();
-            const gameId = document.getElementById('regGameId').value.trim();
-            const contact = document.getElementById('regContact').value.trim();
-
-            if(!name || !gameId) return;
-
-            const newPlayerRef = window.dbPush(window.dbRef(window.database, 'players'));
-            window.dbSet(newPlayerRef, { name, gameId, contact })
-                .then(() => {
-                    alert('Registration successful!');
-                    document.getElementById('registrationForm').reset();
-                })
-                .catch(err => {
-                    alert('Error saving registration: ' + err.message);
-                });
-        }
-
-        // Render Players Table
-        function renderPlayers() {
-            const pubList = document.getElementById('publicPlayersList');
-            const adminList = document.getElementById('adminPlayersListBody');
-            const countBadge = document.getElementById('playerCountBadge');
-
-            const keys = Object.keys(globalPlayers);
-            countBadge.innerText = `${keys.length} Players`;
-
-            if(keys.length === 0) {
-                pubList.innerHTML = `<tr><td colspan="3" class="text-center py-4 text-gray-500">No players registered yet.</td></tr>`;
-                adminList.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-gray-500">No players registered yet.</td></tr>`;
-                return;
-            }
-
-            let pubHTML = '';
-            let adminHTML = '';
-            let idx = 1;
-
-            keys.forEach(key => {
-                const p = globalPlayers[key];
-                pubHTML += `
-                    <tr class="border-b border-gray-800/30">
-                        <td class="py-2.5 px-3 text-gray-500 font-mono">${idx}</td>
-                        <td class="py-2.5 px-3 font-medium text-white">${escapeHtml(p.name)}</td>
-                        <td class="py-2.5 px-3 text-cyan-400 font-mono text-xs">${escapeHtml(p.gameId)}</td>
-                    </tr>
-                `;
-                adminHTML += `
-                    <tr class="border-b border-gray-800/30">
-                        <td class="py-2.5 px-3 font-medium text-white">${escapeHtml(p.name)}</td>
-                        <td class="py-2.5 px-3 text-cyan-400 font-mono text-xs">${escapeHtml(p.gameId)}</td>
-                        <td class="py-2.5 px-3 text-gray-300 text-xs">${escapeHtml(p.contact || '-')}</td>
-                        <td class="py-2.5 px-3 text-right">
-                            <button onclick="deletePlayer('${key}')" class="text-red-400 hover:text-red-300 text-xs px-2 py-1 bg-red-500/10 rounded"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
-                idx++;
-            });
-
-            pubList.innerHTML = pubHTML;
-            adminList.innerHTML = adminHTML;
-        }
-
-        function deletePlayer(key) {
-            if(confirm('Are you sure you want to delete this player?')) {
-                window.dbRemove(window.dbRef(window.database, `players/${key}`));
-            }
-        }
-
-        // Auto Generate Group Round-Robin Fixtures
-        function generateGroupFixtures() {
-            const playerIds = Object.keys(globalPlayers);
-            if(playerIds.length < 2) {
-                alert('You need at least 2 players registered to generate fixtures.');
-                return;
-            }
-
-            if(!confirm('This will overwrite current match fixtures. Proceed?')) return;
-
-            const matches = {};
-            // Simple round-robin pair generation
-            for(let i = 0; i < playerIds.length; i++) {
-                for(let j = i + 1; j < playerIds.length; j++) {
-                    const p1 = playerIds[i];
-                    const p2 = playerIds[j];
-                    const matchId = 'm_' + Math.random().toString(36.substring(2, 9));
-                    matches[matchId] = {
-                        player1Id: p1,
-                        player2Id: p2,
-                        score1: '',
-                        score2: '',
-                        played: false
-                    };
-                }
-            }
-
-            window.dbSet(window.dbRef(window.database, 'matches'), matches)
-                .then(() => alert('Group fixtures generated successfully!'))
-                .catch(err => alert('Error generating fixtures: ' + err.message));
-        }
-
-        // Render Matches & Compute Standings
-        function renderStandings() {
-            const standingsTableBody = document.getElementById('standingsTableBody');
-            const playerIds = Object.keys(globalPlayers);
-
-            if(playerIds.length === 0) {
-                standingsTableBody.innerHTML = `<tr><td colspan="10" class="text-center py-6 text-gray-500">No players available for standings.</td></tr>`;
-                return;
-            }
-
-            // Initialize stats map
-            let stats = {};
-            playerIds.forEach(id => {
-                stats[id] = {
-                    id: id,
-                    name: globalPlayers[id].name,
-                    p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0
-                };
-            });
-
-            // Calculate stats from played matches
-            Object.values(globalMatches).forEach(m => {
-                if(m.played && m.score1 !== '' && m.score2 !== '') {
-                    const s1 = parseInt(m.score1);
-                    const s2 = parseInt(m.score2);
-                    const p1 = stats[m.player1Id];
-                    const p2 = stats[m.player2Id];
-
-                    if(p1 && p2) {
-                        p1.p += 1;
-                        p2.p += 1;
-                        p1.gf += s1;
-                        p1.ga += s2;
-                        p2.gf += s2;
-                        p2.ga += s1;
-
-                        if(s1 > s2) {
-                            p1.w += 1; p1.pts += 3;
-                            p2.l += 1;
-                        } else if(s1 < s2) {
-                            p2.w += 1; p2.pts += 3;
-                            p1.l += 1;
-                        } else {
-                            p1.d += 1; p1.pts += 1;
-                            p2.d += 1; p2.pts += 1;
-                        }
-                    }
-                }
-            });
-
-            // Compute Goal Difference
-            Object.values(stats).forEach(s => {
-                s.gd = s.gf - s.ga;
-            });
-
-            // Sort standings: Pts DESC, GD DESC, GF DESC
-            let sortedStats = Object.values(stats).sort((a, b) => {
-                if(b.pts !== a.pts) return b.pts - a.pts;
-                if(b.gd !== a.gd) return b.gd - a.gd;
-                return b.gf - a.gf;
-            });
-
-            // Render Standings Table
-            let html = '';
-            sortedStats.forEach((st, idx) => {
-                html += `
-                    <tr class="border-b border-gray-800/30 hover:bg-gray-800/20">
-                        <td class="py-3 px-4 font-mono font-bold text-gray-400">${idx + 1}</td>
-                        <td class="py-3 px-4 font-medium text-white flex items-center gap-2">
-                            ${escapeHtml(st.name)}
-                        </td>
-                        <td class="py-3 px-3 text-center text-gray-300 font-mono">${st.p}</td>
-                        <td class="py-3 px-3 text-center text-emerald-400 font-mono">${st.w}</td>
-                        <td class="py-3 px-3 text-center text-yellow-400 font-mono">${st.d}</td>
-                        <td class="py-3 px-3 text-center text-red-400 font-mono">${st.l}</td>
-                        <td class="py-3 px-3 text-center text-gray-300 font-mono">${st.gf}</td>
-                        <td class="py-3 px-3 text-center text-gray-300 font-mono">${st.ga}</td>
-                        <td class="py-3 px-3 text-center font-mono ${st.gd > 0 ? 'text-emerald-400' : st.gd < 0 ? 'text-red-400' : 'text-gray-400'}">${st.gd > 0 ? '+' + st.gd : st.gd}</td>
-                        <td class="py-3 px-4 text-center font-black text-cyan-400 font-mono text-base">${st.pts}</td>
-                    </tr>
-                `;
-            });
-            standingsTableBody.innerHTML = html;
-        }
-
-        // Render Matches (Public and Admin)
-        function renderMatches() {
-            const pubMatchesList = document.getElementById('publicMatchesList');
-            const adminMatchesList = document.getElementById('adminMatchesList');
-            const matchKeys = Object.keys(globalMatches);
-
-            if(matchKeys.length === 0) {
-                pubMatchesList.innerHTML = `<p class="text-gray-500 text-sm">No fixtures scheduled yet.</p>`;
-                adminMatchesList.innerHTML = `<p class="text-gray-500 text-sm">No fixtures scheduled yet.</p>`;
-                return;
-            }
-
-            let pubHTML = '';
-            let adminHTML = '';
-
-            matchKeys.forEach(mKey => {
-                const m = globalMatches[mKey];
-                const p1Name = globalPlayers[m.player1Id] ? globalPlayers[m.player1Id].name : 'Unknown';
-                const p2Name = globalPlayers[m.player2Id] ? globalPlayers[m.player2Id].name : 'Unknown';
-
-                pubHTML += `
-                    <div class="bg-darkBg/60 border border-gray-800 p-3 rounded-xl flex items-center justify-between text-sm">
-                        <div class="w-2/5 text-right font-medium truncate">${escapeHtml(p1Name)}</div>
-                        <div class="w-1/5 text-center font-mono font-bold bg-gray-800/80 py-1 px-2 rounded mx-2 text-cyan-400">
-                            ${m.played ? `${m.score2 !== '' ? m.score1 : '-'} : ${m.score2 !== '' ? m.score2 : '-'}` : 'VS'}
-                        </div>
-                        <div class="w-2/5 text-left font-medium truncate">${escapeHtml(p2Name)}</div>
-                    </div>
-                `;
-
-                adminHTML += `
-                    <div class="bg-darkBg/60 border border-gray-800 p-3 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
-                        <div class="w-full sm:w-1/3 text-center sm:text-right font-medium truncate">${escapeHtml(p1Name)}</div>
-                        <div class="flex items-center gap-2">
-                            <input type="number" id="s1_${mKey}" value="${m.score1}" class="w-14 bg-gray-900 border border-gray-700 text-center rounded p-1 text-white font-mono" placeholder="0">
-                            <span class="text-gray-500 font-bold">:</span>
-                            <input type="number" id="s2_${mKey}" value="${m.score2}" class="w-14 bg-gray-900 border border-gray-700 text-center rounded p-1 text-white font-mono" placeholder="0">
-                            <button onclick="updateMatchScore('${mKey}')" class="bg-emerald-500 hover:bg-emerald-400 text-black px-3 py-1 rounded text-xs font-bold transition">Save</button>
-                        </div>
-                        <div class="w-full sm:w-1/3 text-center sm:text-left font-medium truncate">${escapeHtml(p2Name)}</div>
-                    </div>
-                `;
-            });
-
-            pubMatchesList.innerHTML = pubHTML;
-            adminMatchesList.innerHTML = adminHTML;
-        }
-
-        function updateMatchScore(mKey) {
-            const s1 = document.getElementById(`s1_${mKey}`).value;
-            const s2 = document.getElementById(`s2_${mKey}`).value;
-
-            if(s1 === '' || s2 === '') {
-                alert('Please enter scores for both players.');
-                return;
-            }
-
-            const matchRef = window.dbRef(window.database, `matches/${mKey}`);
-            window.dbGet(matchRef).then(snapshot => {
-                if(snapshot.exists()) {
-                    let mData = snapshot.val();
-                    mData.score1 = s1;
-                    mData.score2 = s2;
-                    mData.played = true;
-                    window.dbSet(matchRef, mData).then(() => {
-                        alert('Match score updated!');
-                    });
-                }
-            });
-        }
-
-        // ==========================================
-        // KNOCKOUT BRACKETS SYSTEM
-        // ==========================================
-        function initializeBrackets() {
-            if(!confirm('Initialize/Reset knockout brackets (QF, SF, Final)?')) return;
-
-            const bracketsData = {
-                qf1: { p1: 'TBD', p2: 'TBD', score1: '', score2: '', winner: '' },
-                qf2: { p1: 'TBD', p2: 'TBD', score1: '', score2: '', winner: '' },
-                qf3: { p1: 'TBD', p2: 'TBD', score1: '', score2: '', winner: '' },
-                qf4: { p1: 'TBD', p2: 'TBD', score1: '', score2: '', winner: '' },
-                sf1: { p1: 'Winner QF1', p2: 'Winner QF2', score1: '', score2: '', winner: '' },
-                sf2: { p1: 'Winner QF3', p2: 'Winner QF4', score1: '', score2: '', winner: '' },
-                final: { p1: 'Winner SF1', p2: 'Winner SF2', score1: '', score2: '', winner: '' }
-            };
-
-            window.dbSet(window.dbRef(window.database, 'brackets'), bracketsData)
-                .then(() => alert('Brackets initialized successfully!'))
-                .catch(err => alert('Error setting brackets: ' + err.message));
-        }
-
-        function renderBrackets() {
-            const qfContainer = document.getElementById('bracket-qf');
-            const sfContainer = document.getElementById('bracket-sf');
-            const finalContainer = document.getElementById('bracket-final');
-            const adminBracketsList = document.getElementById('adminBracketsList');
-
-            if(!globalBrackets.qf1) {
-                qfContainer.innerHTML = `<p class="text-xs text-gray-500">Not initialized.</p>`;
-                sfContainer.innerHTML = `<p class="text-xs text-gray-500">Not initialized.</p>`;
-                finalContainer.innerHTML = `<p class="text-xs text-gray-500">Not initialized.</p>`;
-                adminBracketsList.innerHTML = `<p class="text-xs text-gray-500">Click "Setup QF from Standings" above to generate brackets.</p>`;
-                return;
-            }
-
-            // Render Public Brackets
-            let qfHTML = '', sfHTML = '', finalHTML = '';
-            
-            ['qf1', 'qf2', 'qf3', 'qf4'].forEach((k, i) => {
-                let m = globalBrackets[k];
-                qfHTML += renderBracketCard(`QF ${i+1}`, m);
-            });
-
-            ['sf1', 'sf2'].forEach((k, i) => {
-                let m = globalBrackets[k];
-                sfHTML += renderBracketCard(`SF ${i+1}`, m);
-            });
-
-            finalHTML += renderBracketCard('Grand Final', globalBrackets.final);
-
-            qfContainer.innerHTML = qfHTML;
-            sfContainer.innerHTML = sfHTML;
-            finalContainer.innerHTML = finalHTML;
-
-            // Render Admin Brackets Editor
-            let adminHTML = '';
-            ['qf1', 'qf2', 'qf3', 'qf4', 'sf1', 'sf2', 'final'].forEach(k => {
-                let m = globalBrackets[k];
-                adminHTML += `
-                    <div class="bg-darkBg/60 border border-gray-800 p-3 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
-                        <div class="font-bold text-xs uppercase text-cyan-400 w-16">${k}</div>
-                        <div class="flex items-center gap-2 flex-grow justify-center">
-                            <input type="text" id="bp1_${k}" value="${m.p1}" class="w-24 sm:w-32 bg-gray-900 border border-gray-700 rounded p-1 text-white text-xs">
-                            <input type="number" id="bs1_${k}" value="${m.score1}" class="w-12 bg-gray-900 border border-gray-700 text-center rounded p-1 text-white font-mono" placeholder="-">
-                            <span class="text-gray-500">:</span>
-                            <input type="number" id="bs2_${k}" value="${m.score2}" class="w-12 bg-gray-900 border border-gray-700 text-center rounded p-1 text-white font-mono" placeholder="-">
-                            <input type="text" id="bp2_${k}" value="${m.p2}" class="w-24 sm:w-32 bg-gray-900 border border-gray-700 rounded p-1 text-white text-xs">
-                        </div>
-                        <button onclick="updateBracketMatch('${k}')" class="bg-emerald-500 hover:bg-emerald-400 text-black px-3 py-1 rounded text-xs font-bold transition">Update</button>
-                    </div>
-                `;
-            });
-            adminBracketsList.innerHTML = adminHTML;
-        }
-
-        function renderBracketCard(title, m) {
-            return `
-                <div class="bg-darkBg/80 border border-gray-800 p-3 rounded-xl shadow">
-                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 flex justify-between">
-                        <span>${title}</span>
-                        <span class="text-emerald-400">${m.winner ? 'Winner: ' + m.winner : ''}</span>
-                    </div>
-                    <div class="space-y-1 text-xs">
-                        <div class="flex justify-between items-center bg-gray-900/60 p-1.5 rounded ${m.winner === m.p1 ? 'border border-emerald-500/50' : ''}">
-                            <span class="truncate font-medium">${escapeHtml(m.p1)}</span>
-                            <span class="font-mono font-bold px-1.5 bg-gray-800 rounded">${m.score1 !== '' ? m.score1 : '-'}</span>
-                        </div>
-                        <div class="flex justify-between items-center bg-gray-900/60 p-1.5 rounded ${m.winner === m.p2 ? 'border border-emerald-500/50' : ''}">
-                            <span class="truncate font-medium">${escapeHtml(m.p2)}</span>
-                            <span class="font-mono font-bold px-1.5 bg-gray-800 rounded">${m.score2 !== '' ? m.score2 : '-'}</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function updateBracketMatch(k) {
-            const p1 = document.getElementById(`bp1_${k}`).value;
-            const p2 = document.getElementById(`bp2_${k}`).value;
-            const score1 = document.getElementById(`bs1_${k}`).value;
-            const score2 = document.getElementById(`bs2_${k}`).value;
-
-            let winner = '';
-            if(score1 !== '' && score2 !== '') {
-                const s1 = parseInt(score1);
-                const s2 = parseInt(score2);
-                if(s1 > s2) winner = p1;
-                else if(s2 > s1) winner = p2;
-                else winner = 'Draw / Penalty TBD';
-            }
-
-            const ref = window.dbRef(window.database, `brackets/${k}`);
-            window.dbSet(ref, { p1, p2, score1, score2, winner }).then(() => {
-                alert(`Bracket match ${k} updated!`);
-            });
-        }
-
-        // Utility Security Escape
-        function escapeHtml(str) {
-            if(!str) return '';
-            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-        }
-    </script>
+    $('year').textContent = new Date().getFullYear();
+    // Initial empty bracket, then replace with live Firebase values when configured.
+    STAGES.forEach(s=>{ if(!state.knockout[s.key]) state.knockout[s.key]={p1:'',p2:'',s1:'',s2:''}; });
+    renderBracket();
+    initFirebase();
+  </script>
 </body>
 </html>
