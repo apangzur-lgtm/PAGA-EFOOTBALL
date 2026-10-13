@@ -132,7 +132,7 @@
         <div class="mt-7"><h4 class="mb-3 font-bold">Saved group matches</h4><div id="groupMatchesList" class="grid gap-2"></div></div>
       </div>
       <div id="knockoutTab" class="admin-tab hidden glass rounded-2xl p-4 sm:p-6">
-        <h3 class="text-lg font-black">Knockout fixtures & scores</h3><p class="mb-5 mt-1 text-sm text-zinc-500">The top two players from each group qualify. Generate quarterfinals after every group fixture has a score; later-round winners advance automatically.</p><button id="generateKnockoutBtn" class="btn btn-primary mb-5 text-sm">Generate Quarterfinals from Standings</button>
+        <h3 class="text-lg font-black">Knockout fixtures & scores</h3><p class="mb-5 mt-1 text-sm text-zinc-500">The top two players from each group qualify. Generate quarterfinals after every expected group pairing has a score; later-round winners advance automatically.</p><button id="generateKnockoutBtn" class="btn btn-primary mb-5 text-sm">Generate Quarterfinals from Standings</button>
         <div id="knockoutEditor" class="grid gap-4 lg:grid-cols-2"></div>
       </div>
       <div class="mt-5 rounded-xl border border-amber-400/20 bg-amber-400/5 p-4 text-xs leading-5 text-amber-100/80"><strong>Security note:</strong> the passcode gate in this standalone demo is only a front-end convenience. It cannot protect Firebase writes from someone inspecting the page. Before using real player/contact data, enable Firebase Authentication and restrictive Realtime Database Rules (or move admin writes behind a trusted backend). Do not treat the browser passcode as secure access control.</div>
@@ -237,8 +237,14 @@
     function allPlayers() {
       return Object.entries(state.players).map(([id, p]) => ({ id, ...p })).sort((a,b) => (a.name||'').localeCompare(b.name||''));
     }
+    function hasScore(m) {
+      return !!m && m.s1 !== '' && m.s1 !== null && m.s1 !== undefined &&
+        m.s2 !== '' && m.s2 !== null && m.s2 !== undefined &&
+        Number.isFinite(Number(m.s1)) && Number.isFinite(Number(m.s2));
+    }
+    function pairKey(a, b) { return [String(a), String(b)].sort().join('::'); }
     function completedGroupMatches() {
-      return Object.values(state.groupMatches).filter(m => m && m.p1 && m.p2 && m.p1 !== m.p2 && m.s1 !== '' && m.s1 !== null && m.s1 !== undefined && m.s2 !== '' && m.s2 !== null && m.s2 !== undefined && Number.isFinite(Number(m.s1)) && Number.isFinite(Number(m.s2)));
+      return Object.values(state.groupMatches).filter(m => m && m.p1 && m.p2 && m.p1 !== m.p2 && hasScore(m));
     }
     function computeStandings(group) {
       const table = {};
@@ -273,7 +279,7 @@
     }
     function renderFixtures() {
       const entries = Object.entries(state.groupMatches).filter(([,m]) => m && m.p1 && m.p2).sort((a,b) => (a[1].group||'Z').localeCompare(b[1].group||'Z') || playerName(a[1].p1).localeCompare(playerName(b[1].p1)));
-      const isCompleted = m => m.s1 !== '' && m.s1 !== null && m.s1 !== undefined && m.s2 !== '' && m.s2 !== null && m.s2 !== undefined && Number.isFinite(Number(m.s1)) && Number.isFinite(Number(m.s2));
+      const isCompleted = hasScore;
       const filtered = entries.filter(([,m]) => (state.fixtureFilter==='all' || (state.fixtureFilter==='completed' ? isCompleted(m) : !isCompleted(m))) && (state.fixtureGroup==='all' || (m.group || state.players[m.p1]?.group)===state.fixtureGroup));
       $('fixturesCount').textContent = `${filtered.length} fixture${filtered.length===1?'':'s'}`;
       $('fixturesList').innerHTML = filtered.length ? filtered.map(([id,m],i) => {
@@ -297,7 +303,7 @@
     }
     function renderGroupMatches() {
       const matches = Object.entries(state.groupMatches).sort((a,b) => (a[1]?.group||'Z').localeCompare(b[1]?.group||'Z') || (a[1]?.updatedAt||0)-(b[1]?.updatedAt||0));
-      const done = m => m.s1 !== '' && m.s1 !== null && m.s1 !== undefined && m.s2 !== '' && m.s2 !== null && m.s2 !== undefined;
+      const done = hasScore;
       $('groupMatchesList').innerHTML = matches.length ? matches.map(([id,m]) => `<div class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-black/20 p-3"><div class="text-sm"><span class="pill mr-2">Group ${escapeHtml(m.group||state.players[m.p1]?.group||'?')}</span><span class="font-semibold">${escapeHtml(playerName(m.p1))}</span> <span class="mx-2 rounded bg-neon/10 px-2 py-1 font-black text-neon">${done(m)?`${escapeHtml(m.s1)} – ${escapeHtml(m.s2)}`:'VS'}</span> <span class="font-semibold">${escapeHtml(playerName(m.p2))}</span><span class="ml-2 text-xs ${done(m)?'text-neon':'text-zinc-500'}">${done(m)?'Completed':'Upcoming'}</span></div><button class="btn btn-danger text-xs" data-delete-match="${escapeHtml(id)}">Delete</button></div>`).join('') : '<p class="text-sm text-zinc-500">No fixtures generated yet.</p>';
     }
     function getKnockout() {
@@ -308,12 +314,18 @@
         const stage = STAGES.find(s=>s.key===key), target = k[key];
         if (!stage.sources) return;
         const w1 = winnerOf(k[stage.sources[0]]), w2 = winnerOf(k[stage.sources[1]]);
+        const saved = state.knockout[key] || {};
+        // If an earlier score changes the players advancing, never reuse an old score
+        // that belonged to a different pairing.
+        if ((saved.p1 || '') !== (w1 || '') || (saved.p2 || '') !== (w2 || '')) {
+          target.s1 = ''; target.s2 = '';
+        }
         target.p1 = w1 || ''; target.p2 = w2 || '';
       });
       return k;
     }
     function winnerOf(m) {
-      if (!m || !m.p1 || !m.p2 || m.s1 === '' || m.s2 === '' || !Number.isFinite(Number(m.s1)) || !Number.isFinite(Number(m.s2))) return '';
+      if (!m || !m.p1 || !m.p2 || !hasScore(m)) return '';
       if (Number(m.s1) === Number(m.s2)) return '';
       return Number(m.s1) > Number(m.s2) ? m.p1 : m.p2;
     }
@@ -451,14 +463,30 @@
     });
     $('generateKnockoutBtn').addEventListener('click', async () => {
       if(!state.admin || !state.db) return;
-      const fixtures=Object.values(state.groupMatches).filter(m=>m && m.p1 && m.p2);
-      if(!fixtures.length) return toast('Generate group fixtures first.',true);
-      const unfinished=fixtures.filter(m=>m.s1==='' || m.s1===null || m.s1===undefined || m.s2==='' || m.s2===null || m.s2===undefined || !Number.isFinite(Number(m.s1)) || !Number.isFinite(Number(m.s2)));
-      if(unfinished.length) return toast(`${unfinished.length} group match(es) still need scores before qualification.`,true);
+      const assignedPlayers=allPlayers().filter(p=>GROUPS.includes(p.group));
+      const unassigned=allPlayers().length-assignedPlayers.length;
+      if(unassigned) return toast(`${unassigned} player(s) still need group assignments.`,true);
       const qualified={};
       for(const group of GROUPS) {
+        const members=assignedPlayers.filter(p=>p.group===group);
+        if(members.length<2) return toast(`Group ${group} needs at least two assigned players.`,true);
+        const existingPairs=new Map();
+        Object.values(state.groupMatches).forEach(m=>{
+          if(!m || !m.p1 || !m.p2) return;
+          if(state.players[m.p1]?.group!==group || state.players[m.p2]?.group!==group) return;
+          const key=pairKey(m.p1,m.p2);
+          // Prefer a completed result if legacy data contains duplicate pairings.
+          if(!existingPairs.has(key) || (!hasScore(existingPairs.get(key)) && hasScore(m))) existingPairs.set(key,m);
+        });
+        let missing=0, unfinished=0;
+        for(let i=0;i<members.length;i++) for(let j=i+1;j<members.length;j++) {
+          const match=existingPairs.get(pairKey(members[i].id,members[j].id));
+          if(!match) missing++;
+          else if(!hasScore(match)) unfinished++;
+        }
+        if(missing) return toast(`Group ${group} is missing ${missing} fixture(s). Generate fixtures or restore the missing pairing(s).`,true);
+        if(unfinished) return toast(`${unfinished} Group ${group} match(es) still need scores.`,true);
         const table=computeStandings(group);
-        if(table.length<2) return toast(`Group ${group} needs at least two assigned players.`,true);
         qualified[group]=table.slice(0,2);
       }
       if(!confirm('Generate quarterfinals from the current top two in each group? Existing quarterfinal participants and scores will be replaced.')) return;
@@ -496,5 +524,7 @@
   </script>
 </body>
 </html>
+
+
 
 
