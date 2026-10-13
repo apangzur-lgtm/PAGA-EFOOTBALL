@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#09090f" />
-  <title>IAMBOT CUP | eFootball Tournament</title>
+  <title>IAMBOT HUB | eFootball Tournament Platform</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -38,13 +38,15 @@
     <div class="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
       <a href="#home" class="flex items-center gap-3">
         <div class="grid h-10 w-10 place-items-center rounded-xl bg-neon font-black text-black shadow-glow">IB</div>
-        <div><div class="font-black tracking-wide">IAMBOT <span class="text-neon">CUP</span></div><div class="text-[10px] uppercase tracking-[.22em] text-zinc-500">eFootball tournament hub</div></div>
+        <div><div class="font-black tracking-wide">IAMBOT <span class="text-neon">HUB</span></div><div class="text-[10px] uppercase tracking-[.22em] text-zinc-500">multi-tournament esports platform</div></div>
       </a>
       <nav class="hidden items-center gap-1 md:flex">
         <a class="rounded-lg px-3 py-2 text-sm text-zinc-300 hover:bg-white/5" href="#register">Register</a>
         <a class="rounded-lg px-3 py-2 text-sm text-zinc-300 hover:bg-white/5" href="#fixtures">Fixtures</a>
         <a class="rounded-lg px-3 py-2 text-sm text-zinc-300 hover:bg-white/5" href="#standings">Standings</a>
         <a class="rounded-lg px-3 py-2 text-sm text-zinc-300 hover:bg-white/5" href="#brackets">Brackets</a>
+        <a class="rounded-lg px-3 py-2 text-sm text-zinc-300 hover:bg-white/5" href="#leaderboard">Leaderboard</a>
+        <a class="rounded-lg px-3 py-2 text-sm text-zinc-300 hover:bg-white/5" href="#halloffame">Hall of Fame</a>
       </nav>
       <button id="adminOpen" class="btn btn-muted text-sm">Admin Login</button>
     </div>
@@ -55,7 +57,7 @@
       <div>
         <div class="mb-4 inline-flex items-center gap-2 rounded-full border border-neon/25 bg-neon/5 px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-neon"><span class="status-dot"></span> Tournament control center</div>
         <h1 class="max-w-3xl text-4xl font-black leading-tight sm:text-6xl">PROVE YOUR <span class="text-neon">DOMINANCE.</span></h1>
-        <p class="mt-5 max-w-2xl text-base leading-7 text-zinc-400 sm:text-lg">Register for the tournament, follow the group standings, and watch the road to the final unfold in real time.</p>
+        <p class="mt-5 max-w-2xl text-base leading-7 text-zinc-400 sm:text-lg">Join competitions, track player careers, explore global rankings, and follow the road to every final in real time.</p>
         <div class="mt-7 flex flex-wrap gap-3"><a href="#register" class="btn btn-primary">Register to play <span>↗</span></a><a href="#brackets" class="btn btn-muted">View bracket</a></div>
       </div>
       <div class="glass rounded-3xl p-5 shadow-glow sm:p-7">
@@ -66,6 +68,13 @@
           <div class="rounded-2xl border border-line bg-black/20 p-4"><p class="text-xs text-zinc-500">Completed</p><p id="heroCompleted" class="mt-2 text-2xl font-black">—</p></div>
         </div>
         <p class="mt-5 text-sm leading-6 text-zinc-500">Scores and standings update automatically when the administrator saves a result.</p>
+      </div>
+    </section>
+
+    <section id="tournamentCentre" class="scroll-mt-24 py-4">
+      <div class="glass flex flex-wrap items-center justify-between gap-4 rounded-2xl p-5">
+        <div><p class="text-xs font-black uppercase tracking-[.2em] text-neon">Competition selector</p><h2 class="mt-1 text-xl font-black">Tournament Centre</h2><p class="mt-1 text-sm text-zinc-500">Switch between competitions. Each tournament has separate players, fixtures, standings and brackets.</p></div>
+        <label class="w-full max-w-sm text-sm font-semibold text-zinc-300">Viewing tournament<select id="tournamentSelect" class="field mt-2"><option value="legacy">IAMBOT CUP · Existing tournament</option></select></label>
       </div>
     </section>
 
@@ -109,8 +118,27 @@
       </div>
     </section>
 
+    <section id="leaderboard" class="scroll-mt-24 py-8">
+      <div class="mb-5"><p class="text-xs font-black uppercase tracking-[.2em] text-neon">05 / Career rankings</p><h2 class="mt-2 text-2xl font-black sm:text-3xl">Global Player Leaderboard</h2><p class="mt-2 text-sm text-zinc-500">Career statistics across tournaments. Players are matched by their eFootball in-game ID.</p></div>
+      <div class="glass rounded-2xl p-4 sm:p-6"><div id="leaderboardList" class="table-wrap"><p class="text-sm text-zinc-500">Player rankings will appear here.</p></div></div>
+    </section>
+
+    <section id="halloffame" class="scroll-mt-24 py-8">
+      <div class="mb-5"><p class="text-xs font-black uppercase tracking-[.2em] text-neon">06 / Legends never forgotten</p><h2 class="mt-2 text-2xl font-black sm:text-3xl">IAMBOT Hall of Fame</h2><p class="mt-2 text-sm text-zinc-500">Archived champions and runners-up from completed tournaments.</p></div>
+      <div id="hallOfFameList" class="grid gap-4 md:grid-cols-2"><div class="glass rounded-2xl p-5 text-sm text-zinc-500">No champions have been archived yet.</div></div>
+    </section>
+
     <section id="adminPanel" class="hidden scroll-mt-24 py-8">
       <div class="mb-5 flex flex-wrap items-end justify-between gap-3"><div><p class="text-xs font-black uppercase tracking-[.2em] text-neon">Private control room</p><h2 class="mt-2 text-2xl font-black sm:text-3xl">Admin Dashboard</h2></div><button id="adminLogout" class="btn btn-danger text-sm">Log out</button></div>
+      <div class="glass mb-5 rounded-2xl p-4 sm:p-6">
+        <h3 class="text-lg font-black">Create a tournament</h3><p class="mb-4 mt-1 text-sm text-zinc-500">New tournaments get separate data and do not overwrite the existing IAMBOT CUP records.</p>
+        <form id="createTournamentForm" class="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
+          <label class="text-sm font-semibold text-zinc-300">Tournament name<input id="newTournamentName" class="field mt-2" maxlength="70" placeholder="e.g. IAMBOT LEAGUE Season 1" required /></label>
+          <label class="text-sm font-semibold text-zinc-300">Season / edition<input id="newTournamentSeason" class="field mt-2" maxlength="40" placeholder="e.g. Season 1 · 2026" /></label>
+          <div class="flex items-end"><button class="btn btn-primary w-full" type="submit">Create tournament</button></div>
+        </form>
+        <div class="mt-4 flex flex-wrap items-center gap-3"><button id="archiveChampionBtn" class="btn btn-muted text-sm" type="button">Archive current champion</button><span class="text-xs text-zinc-500">Available after a final has a decisive score.</span></div>
+      </div>
       <div class="mb-5 flex flex-wrap gap-2 border-b border-line pb-4">
         <button class="tab active btn btn-muted text-sm" data-tab="playersTab">Players & Groups</button><button class="tab btn btn-muted text-sm" data-tab="groupsTab">Group Scores</button><button class="tab btn btn-muted text-sm" data-tab="knockoutTab">Knockout Fixtures</button>
       </div>
@@ -175,7 +203,7 @@
     const ADMIN_PASSCODE = "Paga3030";
 
     const $ = (id) => document.getElementById(id);
-    const state = { db: null, players: {}, groupMatches: {}, knockout: {}, connected: false, admin: false, fixtureFilter: 'all', fixtureGroup: 'all' };
+    const state = { db: null, players: {}, groupMatches: {}, knockout: {}, connected: false, admin: false, fixtureFilter: 'all', fixtureGroup: 'all', activeTournamentId: 'legacy', tournaments: {}, tournamentData: {}, hallOfFame: {}, activeRefs: [], legacySnapshot: {players:{},groupMatches:{},knockout:{}}, allDataReady:false };
     const GROUPS = ['A','B','C','D'];
     const MAX_PLAYERS = 20;
     const GROUP_CAPACITY = 5;
@@ -205,6 +233,29 @@
         firebaseConfig.projectId && !firebaseConfig.projectId.startsWith('PASTE_') &&
         firebaseConfig.databaseURL && !firebaseConfig.databaseURL.includes('PASTE_YOUR_PROJECT');
     }
+    function dataPath(node) { return state.activeTournamentId === 'legacy' ? node : `tournamentData/${state.activeTournamentId}/${node}`; }
+    function safeTournamentName(id) { return id === 'legacy' ? 'IAMBOT CUP' : (state.tournaments[id]?.name || 'Untitled tournament'); }
+    function subscribeRef(path, callback) {
+      const ref = state.db.ref(path); ref.on('value', callback, handleFirebaseError); state.activeRefs.push({ref, callback});
+    }
+    function subscribeActiveTournament() {
+      state.activeRefs.forEach(({ref,callback}) => ref.off('value', callback)); state.activeRefs = [];
+      subscribeRef(dataPath('players'), snap => { state.players = snap.val() || {}; renderAll(); });
+      subscribeRef(dataPath('groupMatches'), snap => { state.groupMatches = snap.val() || {}; renderAll(); });
+      subscribeRef(dataPath('knockout'), snap => {
+        state.knockout = snap.val() || {};
+        STAGES.forEach(s => { if (!state.knockout[s.key]) state.knockout[s.key] = {p1:'',p2:'',s1:'',s2:''}; });
+        renderAll();
+      });
+      $('bracketNotice').textContent = `Viewing ${safeTournamentName(state.activeTournamentId)}. Tournament data is connected to Firebase.`;
+      if (state.admin) renderPlayerAdmin();
+    }
+    function renderTournamentSelector() {
+      const select = $('tournamentSelect'); if (!select) return;
+      const items = [['legacy', 'IAMBOT CUP · Existing tournament'], ...Object.entries(state.tournaments).map(([id,t]) => [id, `${t.name || 'Untitled tournament'}${t.season ? ' · '+t.season : ''}`])];
+      select.innerHTML = items.map(([id,label]) => `<option value="${escapeHtml(id)}">${escapeHtml(label)}</option>`).join('');
+      select.value = state.activeTournamentId;
+    }
     function initFirebase() {
       if (!hasFirebaseConfig()) {
         $('groupStandingsContainer').innerHTML = '<div class="glass rounded-2xl p-5 text-amber-200">Firebase is not configured yet. Paste your Firebase credentials in the setup section of index.html.</div>';
@@ -219,15 +270,15 @@
           state.connected = !!snap.val();
           if (!state.connected) console.info('Firebase Realtime Database is disconnected.');
         });
-        state.db.ref('players').on('value', snap => { state.players = snap.val() || {}; renderAll(); }, handleFirebaseError);
-        state.db.ref('groupMatches').on('value', snap => { state.groupMatches = snap.val() || {}; renderAll(); }, handleFirebaseError);
-        state.db.ref('knockout').on('value', snap => {
-          state.knockout = snap.val() || {};
-          // Fill absent stage records locally for rendering; never overwrite existing records here.
-          STAGES.forEach(s => { if (!state.knockout[s.key]) state.knockout[s.key] = {p1:'',p2:'',s1:'',s2:''}; });
-          renderAll();
-        }, handleFirebaseError);
-        $('bracketNotice').textContent = 'Live tournament data is connected to Firebase.';
+        state.db.ref('tournamentMeta').on('value', snap => { state.tournaments = snap.val() || {}; renderTournamentSelector(); renderCareerViews(); }, handleFirebaseError);
+        state.db.ref('tournamentData').on('value', snap => { state.tournamentData = snap.val() || {}; renderCareerViews(); }, handleFirebaseError);
+        state.db.ref('hallOfFame').on('value', snap => { state.hallOfFame = snap.val() || {}; renderCareerViews(); }, handleFirebaseError);
+        // Keep a read-only snapshot of the original root-level IAMBOT CUP data for career stats.
+        state.db.ref('players').on('value', snap => { state.legacySnapshot.players = snap.val() || {}; renderCareerViews(); }, handleFirebaseError);
+        state.db.ref('groupMatches').on('value', snap => { state.legacySnapshot.groupMatches = snap.val() || {}; renderCareerViews(); }, handleFirebaseError);
+        state.db.ref('knockout').on('value', snap => { state.legacySnapshot.knockout = snap.val() || {}; renderCareerViews(); }, handleFirebaseError);
+        subscribeActiveTournament();
+        renderTournamentSelector();
       } catch (err) { console.error(err); toast('Firebase could not initialize. Check your configuration.', true); }
     }
     function handleFirebaseError(error) {
@@ -362,13 +413,91 @@
           <button class="btn btn-primary mt-3 w-full text-sm" type="submit">Save fixture & score</button></form>`;
       }).join('');
     }
+    function allTournamentData() {
+      const rows = [{id:'legacy', name:'IAMBOT CUP', season:'Existing tournament', players:state.legacySnapshot.players||{}, groupMatches:state.legacySnapshot.groupMatches||{}, knockout:state.legacySnapshot.knockout||{}}];
+      Object.entries(state.tournamentData || {}).forEach(([id,data]) => rows.push({id, name:state.tournaments[id]?.name || 'Untitled tournament', season:state.tournaments[id]?.season || '', players:data?.players||{}, groupMatches:data?.groupMatches||{}, knockout:data?.knockout||{}}));
+      return rows;
+    }
+    function computeCareerLeaderboard() {
+      const careers = {};
+      const getCareer = p => {
+        const key = String(p.gameId || p.name || 'unknown').trim().toLowerCase();
+        if (!careers[key]) careers[key] = {key, name:p.name || p.gameId || 'Unknown player', gameId:p.gameId || '', tournaments:new Set(), P:0,W:0,D:0,L:0,GF:0,GA:0,trophies:0};
+        if (p.name && (!careers[key].name || careers[key].name==='Unknown player')) careers[key].name=p.name;
+        return careers[key];
+      };
+      allTournamentData().forEach(t => {
+        const byId = {};
+        Object.entries(t.players).forEach(([id,p]) => { byId[id]=p; const c=getCareer(p); c.tournaments.add(t.id); });
+        const matches = [...Object.values(t.groupMatches||{}), ...Object.values(t.knockout||{})];
+        matches.forEach(m => {
+          if (!m || !m.p1 || !m.p2 || !hasScore(m) || !byId[m.p1] || !byId[m.p2]) return;
+          const a=getCareer(byId[m.p1]), b=getCareer(byId[m.p2]), x=Number(m.s1), y=Number(m.s2);
+          a.P++; b.P++; a.GF+=x; a.GA+=y; b.GF+=y; b.GA+=x;
+          if (x>y) { a.W++; b.L++; } else if (x<y) { b.W++; a.L++; } else { a.D++; b.D++; }
+        });
+      });
+      Object.values(state.hallOfFame||{}).forEach(record => {
+        const winnerKey=String(record.winnerGameId||record.winnerName||'').trim().toLowerCase();
+        if (winnerKey && careers[winnerKey]) careers[winnerKey].trophies++;
+      });
+      return Object.values(careers).map(c=>({...c, tournaments:c.tournaments.size, GD:c.GF-c.GA, winRate:c.P?Math.round(c.W/c.P*100):0})).sort((a,b)=>b.trophies-a.trophies||b.W-a.W||b.GD-a.GD||b.GF-a.GF||a.name.localeCompare(b.name));
+    }
+    function renderCareerViews() {
+      const leaderboard=$('leaderboardList'), hall=$('hallOfFameList'); if (!leaderboard || !hall) return;
+      const careers=computeCareerLeaderboard();
+      leaderboard.innerHTML=careers.length ? `<table><thead><tr><th>#</th><th>Player</th><th>Played</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GD</th><th>Win %</th><th>Trophies</th><th>Tournaments</th></tr></thead><tbody>${careers.map((c,i)=>`<tr><td class="font-black ${i<3?'text-neon':''}">${i+1}</td><td><button type="button" class="text-left font-bold hover:text-neon" data-career-profile="${escapeHtml(c.key)}">${escapeHtml(c.name)}</button><div class="text-xs text-zinc-500">${escapeHtml(c.gameId)}</div></td><td>${c.P}</td><td>${c.W}</td><td>${c.D}</td><td>${c.L}</td><td>${c.GF}</td><td class="${c.GD>0?'text-neon':c.GD<0?'text-rose-300':''}">${c.GD>0?'+':''}${c.GD}</td><td>${c.winRate}%</td><td class="font-black text-neon">${c.trophies}</td><td>${c.tournaments}</td></tr>`).join('')}</tbody></table>` : '<p class="text-sm text-zinc-500">Player career records will appear after players register and match results are saved.</p>';
+      const records=Object.entries(state.hallOfFame||{}).map(([id,r])=>({id,...r})).sort((a,b)=>(b.archivedAt||0)-(a.archivedAt||0));
+      hall.innerHTML=records.length ? records.map(r=>`<article class="glass rounded-2xl border border-neon/20 p-5"><div class="flex items-start justify-between gap-3"><div><p class="text-xs font-black uppercase tracking-widest text-neon">🏆 Champion</p><h3 class="mt-2 text-xl font-black">${escapeHtml(r.winnerName||'Unknown champion')}</h3><p class="mt-1 text-sm text-zinc-400">${escapeHtml(r.tournamentName||'Tournament')} ${r.season?'· '+escapeHtml(r.season):''}</p></div><span class="pill">${escapeHtml(r.finalScore||'Champion')}</span></div><div class="mt-4 border-t border-line pt-3 text-sm text-zinc-400">Runner-up: <span class="font-bold text-zinc-200">${escapeHtml(r.runnerUpName||'Not recorded')}</span></div></article>`).join('') : '<div class="glass rounded-2xl p-5 text-sm text-zinc-500">No champions archived yet. An admin can archive a champion after a decisive final.</div>';
+    }
     function renderAll() {
       $('heroPlayers').textContent = allPlayers().length;
       $('heroMatches').textContent = Object.keys(state.groupMatches).length;
       $('heroCompleted').textContent = completedGroupMatches().length;
-      renderStandings(); renderBracket(); renderFixtures();
+      renderStandings(); renderBracket(); renderFixtures(); renderCareerViews();
       if (state.admin) renderPlayerAdmin();
     }
+
+    $('leaderboardList').addEventListener('click', e => {
+      const btn=e.target.closest('[data-career-profile]'); if(!btn) return;
+      const career=computeCareerLeaderboard().find(c=>c.key===btn.dataset.careerProfile); if(!career) return;
+      $('profilePlayerName').textContent=career.name;
+      $('profileDetails').innerHTML=[['In-game ID',career.gameId||'—'],['Tournaments',career.tournaments],['Matches played',career.P],['Wins',career.W],['Draws',career.D],['Losses',career.L],['Goals scored',career.GF],['Goals conceded',career.GA],['Goal difference',(career.GD>0?'+':'')+career.GD],['Win rate',career.winRate+'%'],['Trophies',career.trophies]].map(([label,value])=>`<div class="rounded-xl border border-line bg-black/20 p-3"><p class="text-xs text-zinc-500">${escapeHtml(label)}</p><p class="mt-1 font-black ${label==='Trophies'?'text-neon':''}">${escapeHtml(value)}</p></div>`).join('');
+      $('playerProfileModal').classList.remove('hidden');
+    });
+    $('profileClose').addEventListener('click', () => $('playerProfileModal').classList.add('hidden'));
+    $('playerProfileModal').addEventListener('click', e => { if(e.target===$('playerProfileModal')) $('playerProfileModal').classList.add('hidden'); });
+
+    $('tournamentSelect').addEventListener('change', e => {
+      if (!state.db) return;
+      state.activeTournamentId = e.target.value || 'legacy';
+      state.players={}; state.groupMatches={}; state.knockout=defaultKnockout();
+      subscribeActiveTournament();
+      toast(`Switched to ${safeTournamentName(state.activeTournamentId)}.`);
+    });
+    $('createTournamentForm').addEventListener('submit', async e => {
+      e.preventDefault(); if(!state.admin || !state.db) return toast('Log in as admin first.', true);
+      const name=$('newTournamentName').value.trim(), season=$('newTournamentSeason').value.trim();
+      if(!name) return toast('Enter a tournament name.', true);
+      const id=state.db.ref('tournamentMeta').push().key;
+      try {
+        await state.db.ref('tournamentMeta/'+id).set({name,season,createdAt:Date.now(),status:'registration'});
+        state.activeTournamentId=id; $('tournamentSelect').value=id; state.players={}; state.groupMatches={}; state.knockout=defaultKnockout(); subscribeActiveTournament();
+        e.currentTarget.reset(); toast('Tournament created. You are now viewing the new competition.');
+      } catch(err){handleFirebaseError(err);}
+    });
+    $('archiveChampionBtn').addEventListener('click', async () => {
+      if(!state.admin || !state.db) return toast('Log in as admin first.', true);
+      const k=getKnockout(), final=k.final, championId=winnerOf(final);
+      if(!championId) return toast('A decisive final result is required before archiving a champion.', true);
+      const runnerId=championId===final.p1?final.p2:final.p1;
+      const tournamentName=safeTournamentName(state.activeTournamentId);
+      const duplicate=Object.values(state.hallOfFame||{}).some(r=>r.tournamentId===state.activeTournamentId && r.season===(state.tournaments[state.activeTournamentId]?.season||''));
+      if(duplicate && !confirm('A champion record already exists for this tournament edition. Add another record anyway?')) return;
+      const record={tournamentId:state.activeTournamentId,tournamentName,season:state.tournaments[state.activeTournamentId]?.season||'',winnerId:championId,winnerName:playerName(championId),winnerGameId:state.players[championId]?.gameId||'',runnerUpId:runnerId,runnerUpName:playerName(runnerId),finalScore:`${final.s1} – ${final.s2}`,archivedAt:Date.now()};
+      try { await state.db.ref('hallOfFame').push(record); toast('Champion archived in the Hall of Fame!'); document.getElementById('halloffame').scrollIntoView({behavior:'smooth'}); }
+      catch(err){handleFirebaseError(err);}
+    });
 
     $('registrationForm').addEventListener('submit', async e => {
       e.preventDefault();
@@ -380,7 +509,7 @@
       if (allPlayers().some(p => p.gameId.toLowerCase() === player.gameId.toLowerCase())) return toast('That in-game ID is already registered.', true);
       const btn = $('registerBtn'); btn.disabled=true; btn.textContent='Submitting…';
       try {
-        await state.db.ref('players').push(player);
+        await state.db.ref(dataPath('players')).push(player);
         e.currentTarget.reset(); toast('Registration submitted successfully. Good luck!');
       } catch (err) { handleFirebaseError(err); }
       finally { btn.disabled=false; btn.innerHTML='Submit registration <span>→</span>'; }
@@ -405,13 +534,13 @@
       const btn=e.target.closest('[data-delete-player]'); if(!btn) return;
       const id=btn.dataset.deletePlayer;
       if(!state.admin || !confirm('Delete this player? Existing matches involving them will remain but will not count in standings.')) return;
-      try { await state.db.ref('players/'+id).remove(); toast('Player deleted.'); } catch(err){handleFirebaseError(err);}
+      try { await state.db.ref(dataPath('players')+'/'+id).remove(); toast('Player deleted.'); } catch(err){handleFirebaseError(err);}
     });
     $('adminPlayersBody').addEventListener('change', async e => {
       const select=e.target.closest('[data-player-group]'); if(!select||!state.admin||!state.db) return;
       const id=select.dataset.playerGroup, group=select.value;
       if(group && allPlayers().filter(p=>p.group===group && p.id!==id).length>=GROUP_CAPACITY) { toast(`Group ${group} already has five players.`,true); renderPlayerAdmin(); return; }
-      try { await state.db.ref('players/'+id+'/group').set(group || null); toast(group?`Player assigned to Group ${group}.`:'Player unassigned.'); }
+      try { await state.db.ref(dataPath('players')+'/'+id+'/group').set(group || null); toast(group?`Player assigned to Group ${group}.`:'Player unassigned.'); }
       catch(err){handleFirebaseError(err);}
     });
     $('generateFixturesBtn').addEventListener('click', async () => {
@@ -427,12 +556,12 @@
       GROUPS.forEach(group=>{
         const members=players.filter(p=>p.group===group);
         for(let i=0;i<members.length;i++) for(let j=i+1;j<members.length;j++) {
-          const key=state.db.ref('groupMatches').push().key;
+          const key=state.db.ref(dataPath('groupMatches')).push().key;
           updates[key]={p1:members[i].id,p2:members[j].id,group,s1:'',s2:'',updatedAt:Date.now(),fixture:true}; total++;
         }
       });
       if(!total) return toast('Each assigned group needs at least two players to create fixtures.',true);
-      try { await state.db.ref('groupMatches').update(updates); toast(`${total} fixtures generated successfully.`); document.getElementById('fixtures').scrollIntoView({behavior:'smooth'}); }
+      try { await state.db.ref(dataPath('groupMatches')).update(updates); toast(`${total} fixtures generated successfully.`); document.getElementById('fixtures').scrollIntoView({behavior:'smooth'}); }
       catch(err){handleFirebaseError(err);}
     });
     document.querySelectorAll('[data-fixture-filter]').forEach(btn=>btn.addEventListener('click',()=>{
@@ -449,17 +578,17 @@
       if(!group1||!group2||group1!==group2) return toast('Both players must be assigned to the same group before saving a group-stage result.',true);
       if(s1===''||s2===''||Number(s1)<0||Number(s2)<0) return toast('Enter valid scores.',true);
       const existing=Object.entries(state.groupMatches).find(([,m]) => m && ((m.p1===p1&&m.p2===p2)||(m.p1===p2&&m.p2===p1)));
-      const id=existing?.[0] || state.db.ref('groupMatches').push().key;
+      const id=existing?.[0] || state.db.ref(dataPath('groupMatches')).push().key;
       const record={...(existing?.[1]||{}),p1,p2,group:group1,s1:Number(s1),s2:Number(s2),updatedAt:Date.now(),fixture:true};
       // Keep the entered orientation consistent with the original fixture when updating a reversed pairing.
       if(existing && existing[1].p1===p2 && existing[1].p2===p1) { record.p1=p2; record.p2=p1; record.s1=Number(s2); record.s2=Number(s1); }
-      try { await state.db.ref('groupMatches/'+id).set(record); e.currentTarget.reset(); toast('Group result saved; standings recalculated.'); }
+      try { await state.db.ref(dataPath('groupMatches')+'/'+id).set(record); e.currentTarget.reset(); toast('Group result saved; standings recalculated.'); }
       catch(err){handleFirebaseError(err);}
     });
     $('groupMatchesList').addEventListener('click', async e => {
       const btn=e.target.closest('[data-delete-match]'); if(!btn||!state.admin||!state.db) return;
       if(!confirm('Delete this group result?')) return;
-      try { await state.db.ref('groupMatches/'+btn.dataset.deleteMatch).remove(); toast('Group result deleted.'); } catch(err){handleFirebaseError(err);}
+      try { await state.db.ref(dataPath('groupMatches')+'/'+btn.dataset.deleteMatch).remove(); toast('Group result deleted.'); } catch(err){handleFirebaseError(err);}
     });
     $('generateKnockoutBtn').addEventListener('click', async () => {
       if(!state.admin || !state.db) return;
@@ -496,7 +625,7 @@
         qf3:{p1:qualified.C[0].id,p2:qualified.D[1].id,s1:'',s2:'',updatedAt:Date.now()},
         qf4:{p1:qualified.D[0].id,p2:qualified.C[1].id,s1:'',s2:'',updatedAt:Date.now()}
       };
-      try { await state.db.ref('knockout').update(qfs); toast('Quarterfinals generated from group standings.'); document.getElementById('brackets').scrollIntoView({behavior:'smooth'}); }
+      try { await state.db.ref(dataPath('knockout')).update(qfs); toast('Quarterfinals generated from group standings.'); document.getElementById('brackets').scrollIntoView({behavior:'smooth'}); }
       catch(err){handleFirebaseError(err);}
     });
     $('knockoutEditor').addEventListener('submit', async e => {
@@ -510,12 +639,13 @@
       if(s1===''||s2===''||Number(s1)<0||Number(s2)<0) return toast('Enter valid scores.',true);
       try {
         // Store only participant choices and score; downstream participants are derived from winners.
-        await state.db.ref('knockout/'+key).set({p1,p2,s1:Number(s1),s2:Number(s2),updatedAt:Date.now()});
+        await state.db.ref(dataPath('knockout')+'/'+key).set({p1,p2,s1:Number(s1),s2:Number(s2),updatedAt:Date.now()});
         toast('Knockout result saved. Winners advanced automatically.');
       } catch(err){handleFirebaseError(err);}
     });
 
     $('year').textContent = new Date().getFullYear();
+    renderTournamentSelector(); renderCareerViews();
     // Initial empty bracket, then replace with live Firebase values when configured.
     STAGES.forEach(s=>{ if(!state.knockout[s.key]) state.knockout[s.key]={p1:'',p2:'',s1:'',s2:''}; });
     renderBracket();
@@ -524,7 +654,4 @@
   </script>
 </body>
 </html>
-
-
-
 
