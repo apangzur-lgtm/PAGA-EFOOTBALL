@@ -42,6 +42,7 @@
       </a>
       <nav class="hidden items-center gap-1 md:flex">
         <a class="rounded-lg px-3 py-2 text-sm text-zinc-300 hover:bg-white/5" href="#register">Register</a>
+        <a class="rounded-lg px-3 py-2 text-sm text-zinc-300 hover:bg-white/5" href="#fixtures">Fixtures</a>
         <a class="rounded-lg px-3 py-2 text-sm text-zinc-300 hover:bg-white/5" href="#standings">Standings</a>
         <a class="rounded-lg px-3 py-2 text-sm text-zinc-300 hover:bg-white/5" href="#brackets">Brackets</a>
       </nav>
@@ -75,21 +76,31 @@
           <label class="block text-sm font-semibold text-zinc-300">Player name<input class="field mt-2" name="name" maxlength="60" placeholder="Your name" required /></label>
           <label class="block text-sm font-semibold text-zinc-300">In-game ID / User ID<input class="field mt-2" name="gameId" maxlength="60" placeholder="eFootball username or ID" required /></label>
           <label class="block text-sm font-semibold text-zinc-300">WhatsApp / Contact<input class="field mt-2" name="contact" maxlength="40" placeholder="e.g. 080..." required /></label>
-          <div class="flex items-end sm:col-span-2 lg:col-span-3"><button id="registerBtn" class="btn btn-primary w-full sm:w-auto" type="submit">Submit registration <span>→</span></button><p class="ml-4 self-center text-xs text-zinc-500">Your entry is saved to the tournament database.</p></div>
+          <div class="flex items-end sm:col-span-2 lg:col-span-3"><button id="registerBtn" class="btn btn-primary w-full sm:w-auto" type="submit">Submit registration <span>→</span></button><p class="ml-4 self-center text-xs text-zinc-500">Maximum 20 players. Group assignments and fixtures will be managed by the admin.</p></div>
         </form>
       </div>
     </section>
 
-    <section id="standings" class="scroll-mt-24 py-8">
-      <div class="mb-5 flex flex-wrap items-end justify-between gap-3"><div><p class="text-xs font-black uppercase tracking-[.2em] text-neon">02 / Group stage</p><h2 class="mt-2 text-2xl font-black sm:text-3xl">League Standings</h2></div><span id="standingsCount" class="pill">0 players</span></div>
-      <div class="glass overflow-hidden rounded-2xl">
-        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line p-4"><p class="text-sm text-zinc-400">Sorted by points, then goal difference, then goals scored.</p><span class="text-xs text-zinc-500">Win 3 pts · Draw 1 pt</span></div>
-        <div class="table-wrap"><table><thead><tr><th>#</th><th>Player</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th></tr></thead><tbody id="standingsBody"><tr><td colspan="10" class="text-center text-zinc-500">Connect Firebase to load standings.</td></tr></tbody></table></div>
+
+    <section id="fixtures" class="scroll-mt-24 py-8">
+      <div class="mb-5 flex flex-wrap items-end justify-between gap-3"><div><p class="text-xs font-black uppercase tracking-[.2em] text-neon">02 / Match centre</p><h2 class="mt-2 text-2xl font-black sm:text-3xl">Tournament Fixtures</h2><p class="mt-2 text-sm text-zinc-500">Check every group's schedule, upcoming games and completed results.</p></div><span id="fixturesCount" class="pill">0 fixtures</span></div>
+      <div class="glass rounded-2xl p-4 sm:p-6">
+        <div class="mb-4 flex flex-wrap gap-2" id="fixtureFilters">
+          <button class="btn btn-primary text-sm" data-fixture-filter="all">All matches</button><button class="btn btn-muted text-sm" data-fixture-filter="upcoming">Upcoming</button><button class="btn btn-muted text-sm" data-fixture-filter="completed">Completed</button>
+          <select id="fixtureGroupFilter" class="field w-auto min-w-36"><option value="all">All groups</option><option value="A">Group A</option><option value="B">Group B</option><option value="C">Group C</option><option value="D">Group D</option></select>
+        </div>
+        <div id="fixturesList" class="grid gap-3 md:grid-cols-2"><p class="text-sm text-zinc-500">Fixtures will appear here after the admin assigns groups and generates the schedule.</p></div>
       </div>
     </section>
 
+    <section id="standings" class="scroll-mt-24 py-8">
+      <div class="mb-5 flex flex-wrap items-end justify-between gap-3"><div><p class="text-xs font-black uppercase tracking-[.2em] text-neon">03 / Group stage</p><h2 class="mt-2 text-2xl font-black sm:text-3xl">League Standings</h2></div><span id="standingsCount" class="pill">0 players</span></div>
+      <div class="mb-4 rounded-xl border border-line bg-panel p-4 text-sm text-zinc-400">Each group is ranked separately. Points: win 3 · draw 1. Tie-breakers: goal difference, then goals scored.</div>
+      <div id="groupStandingsContainer" class="grid gap-5 lg:grid-cols-2"><div class="glass rounded-2xl p-5 text-sm text-zinc-500">Connect Firebase to load group standings.</div></div>
+    </section>
+
     <section id="brackets" class="scroll-mt-24 py-8">
-      <div class="mb-5"><p class="text-xs font-black uppercase tracking-[.2em] text-neon">03 / Knockout stage</p><h2 class="mt-2 text-2xl font-black sm:text-3xl">Championship Bracket</h2><p class="mt-2 text-sm text-zinc-500">Quarterfinal winners advance to the semifinals; semifinal winners advance to the final.</p></div>
+      <div class="mb-5"><p class="text-xs font-black uppercase tracking-[.2em] text-neon">04 / Knockout stage</p><h2 class="mt-2 text-2xl font-black sm:text-3xl">Championship Bracket</h2><p class="mt-2 text-sm text-zinc-500">Quarterfinal winners advance to the semifinals; semifinal winners advance to the final.</p></div>
       <div id="bracketNotice" class="mb-4 rounded-xl border border-line bg-panel p-4 text-sm text-zinc-400">The administrator can assign players and enter scores from the admin dashboard.</div>
       <div id="bracketView" class="grid gap-4 md:grid-cols-3">
         <div class="glass rounded-2xl p-4"><h3 class="mb-3 font-black text-neon">QUARTERFINALS</h3><div id="qfCards" class="grid gap-3"></div></div>
@@ -101,11 +112,13 @@
     <section id="adminPanel" class="hidden scroll-mt-24 py-8">
       <div class="mb-5 flex flex-wrap items-end justify-between gap-3"><div><p class="text-xs font-black uppercase tracking-[.2em] text-neon">Private control room</p><h2 class="mt-2 text-2xl font-black sm:text-3xl">Admin Dashboard</h2></div><button id="adminLogout" class="btn btn-danger text-sm">Log out</button></div>
       <div class="mb-5 flex flex-wrap gap-2 border-b border-line pb-4">
-        <button class="tab active btn btn-muted text-sm" data-tab="playersTab">Players</button><button class="tab btn btn-muted text-sm" data-tab="groupsTab">Group Scores</button><button class="tab btn btn-muted text-sm" data-tab="knockoutTab">Knockout Fixtures</button>
+        <button class="tab active btn btn-muted text-sm" data-tab="playersTab">Players & Groups</button><button class="tab btn btn-muted text-sm" data-tab="groupsTab">Group Scores</button><button class="tab btn btn-muted text-sm" data-tab="knockoutTab">Knockout Fixtures</button>
       </div>
       <div id="playersTab" class="admin-tab glass rounded-2xl p-4 sm:p-6">
         <div class="mb-4 flex flex-wrap items-center justify-between gap-3"><h3 class="text-lg font-black">Registered players</h3><span id="adminPlayerCount" class="pill">0 players</span></div>
-        <div class="table-wrap"><table><thead><tr><th>Name</th><th>In-game ID</th><th>Contact</th><th>Registered</th><th>Action</th></tr></thead><tbody id="adminPlayersBody"></tbody></table></div>
+        <p class="mb-4 text-sm text-zinc-400">Assign every player to a group. Each group can contain up to five players. Registration closes automatically at 20 players.</p>
+        <div class="mb-4 flex flex-wrap gap-2"><button id="generateFixturesBtn" class="btn btn-primary text-sm">Generate Group Fixtures</button><span id="groupCapacityInfo" class="pill">Groups: 0/20 assigned</span></div>
+        <div class="table-wrap"><table><thead><tr><th>Name</th><th>In-game ID</th><th>Contact</th><th>Group</th><th>Registered</th><th>Action</th></tr></thead><tbody id="adminPlayersBody"></tbody></table></div>
       </div>
       <div id="groupsTab" class="admin-tab hidden glass rounded-2xl p-4 sm:p-6">
         <h3 class="text-lg font-black">Add / update group-stage result</h3><p class="mb-5 mt-1 text-sm text-zinc-500">A saved result is used to calculate the standings. Saving the same player pairing updates its result.</p>
@@ -119,7 +132,7 @@
         <div class="mt-7"><h4 class="mb-3 font-bold">Saved group matches</h4><div id="groupMatchesList" class="grid gap-2"></div></div>
       </div>
       <div id="knockoutTab" class="admin-tab hidden glass rounded-2xl p-4 sm:p-6">
-        <h3 class="text-lg font-black">Knockout fixtures & scores</h3><p class="mb-5 mt-1 text-sm text-zinc-500">Choose participants for quarterfinals. Winners are advanced automatically. If a score is tied, no winner advances until the score is changed.</p>
+        <h3 class="text-lg font-black">Knockout fixtures & scores</h3><p class="mb-5 mt-1 text-sm text-zinc-500">The top two players from each group qualify. Generate quarterfinals after every group fixture has a score; later-round winners advance automatically.</p><button id="generateKnockoutBtn" class="btn btn-primary mb-5 text-sm">Generate Quarterfinals from Standings</button>
         <div id="knockoutEditor" class="grid gap-4 lg:grid-cols-2"></div>
       </div>
       <div class="mt-5 rounded-xl border border-amber-400/20 bg-amber-400/5 p-4 text-xs leading-5 text-amber-100/80"><strong>Security note:</strong> the passcode gate in this standalone demo is only a front-end convenience. It cannot protect Firebase writes from someone inspecting the page. Before using real player/contact data, enable Firebase Authentication and restrictive Realtime Database Rules (or move admin writes behind a trusted backend). Do not treat the browser passcode as secure access control.</div>
@@ -162,7 +175,10 @@
     const ADMIN_PASSCODE = "Paga3030";
 
     const $ = (id) => document.getElementById(id);
-    const state = { db: null, players: {}, groupMatches: {}, knockout: {}, connected: false, admin: false };
+    const state = { db: null, players: {}, groupMatches: {}, knockout: {}, connected: false, admin: false, fixtureFilter: 'all', fixtureGroup: 'all' };
+    const GROUPS = ['A','B','C','D'];
+    const MAX_PLAYERS = 20;
+    const GROUP_CAPACITY = 5;
     const STAGES = [
       { key: 'qf1', label: 'Quarterfinal 1', stage: 'qf' },
       { key: 'qf2', label: 'Quarterfinal 2', stage: 'qf' },
@@ -191,7 +207,8 @@
     }
     function initFirebase() {
       if (!hasFirebaseConfig()) {
-        $('standingsBody').innerHTML = '<tr><td colspan="10" class="text-center text-amber-200">Firebase is not configured yet. Paste your Firebase credentials in the setup section of index.html.</td></tr>';
+        $('groupStandingsContainer').innerHTML = '<div class="glass rounded-2xl p-5 text-amber-200">Firebase is not configured yet. Paste your Firebase credentials in the setup section of index.html.</div>';
+        $('fixturesList').innerHTML = '<p class="text-sm text-amber-200">Connect Firebase to load fixtures.</p>';
         $('bracketNotice').textContent = 'Firebase is not configured. Paste your Firebase web app credentials in the setup section to enable live data.';
         renderBracket(); return;
       }
@@ -221,13 +238,14 @@
       return Object.entries(state.players).map(([id, p]) => ({ id, ...p })).sort((a,b) => (a.name||'').localeCompare(b.name||''));
     }
     function completedGroupMatches() {
-      return Object.values(state.groupMatches).filter(m => m && m.p1 && m.p2 && m.p1 !== m.p2 && Number.isFinite(Number(m.s1)) && Number.isFinite(Number(m.s2)));
+      return Object.values(state.groupMatches).filter(m => m && m.p1 && m.p2 && m.p1 !== m.p2 && m.s1 !== '' && m.s1 !== null && m.s1 !== undefined && m.s2 !== '' && m.s2 !== null && m.s2 !== undefined && Number.isFinite(Number(m.s1)) && Number.isFinite(Number(m.s2)));
     }
-    function computeStandings() {
+    function computeStandings(group) {
       const table = {};
-      allPlayers().forEach(p => table[p.id] = { id:p.id, name:p.name || 'Unnamed', P:0, W:0, D:0, L:0, GF:0, GA:0, GD:0, Pts:0 });
+      allPlayers().filter(p => p.group === group).forEach(p => table[p.id] = { id:p.id, name:p.name || 'Unnamed', group, P:0, W:0, D:0, L:0, GF:0, GA:0, GD:0, Pts:0 });
       completedGroupMatches().forEach(m => {
         if (!table[m.p1] || !table[m.p2]) return;
+        if ((state.players[m.p1]?.group || m.group) !== group || (state.players[m.p2]?.group || m.group) !== group) return;
         const a = table[m.p1], b = table[m.p2], x = Number(m.s1), y = Number(m.s2);
         a.P++; b.P++; a.GF += x; a.GA += y; b.GF += y; b.GA += x;
         if (x > y) { a.W++; a.Pts += 3; b.L++; }
@@ -237,24 +255,50 @@
       return Object.values(table).map(p => ({...p, GD:p.GF-p.GA})).sort((a,b) => b.Pts-a.Pts || b.GD-a.GD || b.GF-a.GF || a.name.localeCompare(b.name));
     }
     function renderStandings() {
-      const rows = computeStandings();
-      $('standingsCount').textContent = `${rows.length} player${rows.length === 1 ? '' : 's'}`;
-      if (!rows.length) {
-        $('standingsBody').innerHTML = '<tr><td colspan="10" class="text-center text-zinc-500">No registrations yet. Be the first to join.</td></tr>'; return;
-      }
-      $('standingsBody').innerHTML = rows.map((p,i) => `<tr><td class="font-black ${i===0?'text-neon':''}">${String(i+1).padStart(2,'0')}</td><td><div class="font-bold">${escapeHtml(p.name)}</div><div class="text-xs text-zinc-500">${escapeHtml(state.players[p.id]?.gameId || '')}</div></td><td>${p.P}</td><td>${p.W}</td><td>${p.D}</td><td>${p.L}</td><td>${p.GF}</td><td>${p.GA}</td><td class="${p.GD>0?'text-neon':p.GD<0?'text-rose-300':''}">${p.GD>0?'+':''}${p.GD}</td><td class="font-black text-neon">${p.Pts}</td></tr>`).join('');
+      const players = allPlayers();
+      const assigned = players.filter(p => GROUPS.includes(p.group)).length;
+      $('standingsCount').textContent = `${assigned}/${players.length} assigned`;
+      let html = '';
+      GROUPS.forEach(group => {
+        const rows = computeStandings(group);
+        html += `<div class="glass overflow-hidden rounded-2xl"><div class="flex items-center justify-between border-b border-line p-4"><h3 class="font-black text-neon">GROUP ${group}</h3><span class="pill">${rows.length}/5 players</span></div>`;
+        if (!rows.length) { html += '<p class="p-5 text-sm text-zinc-500">Players have not been assigned to this group yet.</p></div>'; return; }
+        html += '<div class="table-wrap"><table style="min-width:560px"><thead><tr><th>#</th><th>Player</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th></tr></thead><tbody>';
+        html += rows.map((p,i) => `<tr><td class="font-black ${i<2?'text-neon':''}">${i+1}</td><td><div class="font-bold">${escapeHtml(p.name)}</div><div class="text-xs text-zinc-500">${escapeHtml(state.players[p.id]?.gameId || '')}</div></td><td>${p.P}</td><td>${p.W}</td><td>${p.D}</td><td>${p.L}</td><td class="${p.GD>0?'text-neon':p.GD<0?'text-rose-300':''}">${p.GD>0?'+':''}${p.GD}</td><td class="font-black text-neon">${p.Pts}</td></tr>`).join('');
+        html += '</tbody></table></div></div>';
+      });
+      const unassigned = players.filter(p => !GROUPS.includes(p.group));
+      if (unassigned.length) html += `<div class="rounded-xl border border-amber-400/20 bg-amber-400/5 p-4 text-sm text-amber-100/80 lg:col-span-2">${unassigned.length} player(s) still need a group assignment in Admin → Players & Groups.</div>`;
+      $('groupStandingsContainer').innerHTML = html || '<p class="text-sm text-zinc-500">No players registered yet.</p>';
+    }
+    function renderFixtures() {
+      const entries = Object.entries(state.groupMatches).filter(([,m]) => m && m.p1 && m.p2).sort((a,b) => (a[1].group||'Z').localeCompare(b[1].group||'Z') || playerName(a[1].p1).localeCompare(playerName(b[1].p1)));
+      const isCompleted = m => m.s1 !== '' && m.s1 !== null && m.s1 !== undefined && m.s2 !== '' && m.s2 !== null && m.s2 !== undefined && Number.isFinite(Number(m.s1)) && Number.isFinite(Number(m.s2));
+      const filtered = entries.filter(([,m]) => (state.fixtureFilter==='all' || (state.fixtureFilter==='completed' ? isCompleted(m) : !isCompleted(m))) && (state.fixtureGroup==='all' || (m.group || state.players[m.p1]?.group)===state.fixtureGroup));
+      $('fixturesCount').textContent = `${filtered.length} fixture${filtered.length===1?'':'s'}`;
+      $('fixturesList').innerHTML = filtered.length ? filtered.map(([id,m],i) => {
+        const done = isCompleted(m), group = m.group || state.players[m.p1]?.group || '?';
+        return `<article class="rounded-2xl border border-line bg-black/20 p-4"><div class="mb-3 flex items-center justify-between gap-2"><span class="pill text-neon">GROUP ${escapeHtml(group)}</span><span class="text-xs ${done?'text-neon':'text-zinc-500'}">${done?'COMPLETED':'UPCOMING'}</span></div><div class="grid grid-cols-[1fr_auto_1fr] items-center gap-3"><div class="min-w-0"><p class="truncate font-bold">${escapeHtml(playerName(m.p1))}</p><p class="text-xs text-zinc-500">${escapeHtml(state.players[m.p1]?.gameId||'')}</p></div><div class="rounded-xl border border-line bg-panel px-3 py-2 text-lg font-black ${done?'text-neon':'text-zinc-500'}">${done?`${escapeHtml(m.s1)} : ${escapeHtml(m.s2)}`:'VS'}</div><div class="min-w-0 text-right"><p class="truncate font-bold">${escapeHtml(playerName(m.p2))}</p><p class="text-xs text-zinc-500">${escapeHtml(state.players[m.p2]?.gameId||'')}</p></div></div></article>`;
+      }).join('') : '<div class="rounded-xl border border-line p-5 text-sm text-zinc-500 md:col-span-2">No fixtures match this filter yet. The admin should assign groups and generate the group fixtures.</div>';
     }
     function renderPlayerAdmin() {
       const players = allPlayers();
-      $('adminPlayerCount').textContent = `${players.length} player${players.length===1?'':'s'}`;
-      $('adminPlayersBody').innerHTML = players.length ? players.map(p => `<tr><td class="font-bold">${escapeHtml(p.name)}</td><td>${escapeHtml(p.gameId)}</td><td>${escapeHtml(p.contact)}</td><td class="text-xs text-zinc-500">${p.createdAt ? escapeHtml(new Date(p.createdAt).toLocaleDateString()) : '—'}</td><td><button class="btn btn-danger text-xs" data-delete-player="${escapeHtml(p.id)}">Delete</button></td></tr>`).join('') : '<tr><td colspan="5" class="text-center text-zinc-500">No players registered.</td></tr>';
-      const options = players.map(p => `<option value="${escapeHtml(p.id)}">${escapeHtml(p.name)} · ${escapeHtml(p.gameId)}</option>`).join('');
+      $('adminPlayerCount').textContent = `${players.length}/${MAX_PLAYERS} players`;
+      const groupCounts = Object.fromEntries(GROUPS.map(g => [g, players.filter(p => p.group===g).length]));
+      const assigned = players.filter(p => GROUPS.includes(p.group)).length;
+      $('groupCapacityInfo').textContent = `Groups: ${assigned}/${players.length} assigned · A ${groupCounts.A}/5 · B ${groupCounts.B}/5 · C ${groupCounts.C}/5 · D ${groupCounts.D}/5`;
+      $('adminPlayersBody').innerHTML = players.length ? players.map(p => {
+        const groupOptions = '<option value="">Unassigned</option>' + GROUPS.map(g => `<option value="${g}" ${p.group===g?'selected':''} ${groupCounts[g]>=GROUP_CAPACITY && p.group!==g?'disabled':''}>Group ${g} (${groupCounts[g]}/5)</option>`).join('');
+        return `<tr><td class="font-bold">${escapeHtml(p.name)}</td><td>${escapeHtml(p.gameId)}</td><td>${escapeHtml(p.contact)}</td><td><select class="field min-w-32" data-player-group="${escapeHtml(p.id)}">${groupOptions}</select></td><td class="text-xs text-zinc-500">${p.createdAt ? escapeHtml(new Date(p.createdAt).toLocaleDateString()) : '—'}</td><td><button class="btn btn-danger text-xs" data-delete-player="${escapeHtml(p.id)}">Delete</button></td></tr>`;
+      }).join('') : '<tr><td colspan="6" class="text-center text-zinc-500">No players registered.</td></tr>';
+      const options = players.map(p => `<option value="${escapeHtml(p.id)}">${escapeHtml(p.name)} · ${escapeHtml(p.gameId)}${p.group?` · Group ${p.group}`:''}</option>`).join('');
       ['groupP1','groupP2'].forEach(id => { const old = $(id).value; $(id).innerHTML = '<option value="">Select player…</option>'+options; if (players.some(p=>p.id===old)) $(id).value=old; });
-      renderGroupMatches(); renderKnockoutEditor();
+      renderGroupMatches(); renderKnockoutEditor(); renderFixtures();
     }
     function renderGroupMatches() {
-      const matches = Object.entries(state.groupMatches).sort((a,b) => (b[1]?.updatedAt||0)-(a[1]?.updatedAt||0));
-      $('groupMatchesList').innerHTML = matches.length ? matches.map(([id,m]) => `<div class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-black/20 p-3"><div class="text-sm"><span class="font-semibold">${escapeHtml(playerName(m.p1))}</span> <span class="mx-2 rounded bg-neon/10 px-2 py-1 font-black text-neon">${escapeHtml(m.s1)} – ${escapeHtml(m.s2)}</span> <span class="font-semibold">${escapeHtml(playerName(m.p2))}</span></div><button class="btn btn-danger text-xs" data-delete-match="${escapeHtml(id)}">Delete</button></div>`).join('') : '<p class="text-sm text-zinc-500">No group scores entered yet.</p>';
+      const matches = Object.entries(state.groupMatches).sort((a,b) => (a[1]?.group||'Z').localeCompare(b[1]?.group||'Z') || (a[1]?.updatedAt||0)-(b[1]?.updatedAt||0));
+      const done = m => m.s1 !== '' && m.s1 !== null && m.s1 !== undefined && m.s2 !== '' && m.s2 !== null && m.s2 !== undefined;
+      $('groupMatchesList').innerHTML = matches.length ? matches.map(([id,m]) => `<div class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-black/20 p-3"><div class="text-sm"><span class="pill mr-2">Group ${escapeHtml(m.group||state.players[m.p1]?.group||'?')}</span><span class="font-semibold">${escapeHtml(playerName(m.p1))}</span> <span class="mx-2 rounded bg-neon/10 px-2 py-1 font-black text-neon">${done(m)?`${escapeHtml(m.s1)} – ${escapeHtml(m.s2)}`:'VS'}</span> <span class="font-semibold">${escapeHtml(playerName(m.p2))}</span><span class="ml-2 text-xs ${done(m)?'text-neon':'text-zinc-500'}">${done(m)?'Completed':'Upcoming'}</span></div><button class="btn btn-danger text-xs" data-delete-match="${escapeHtml(id)}">Delete</button></div>`).join('') : '<p class="text-sm text-zinc-500">No fixtures generated yet.</p>';
     }
     function getKnockout() {
       const k = {...defaultKnockout()};
@@ -310,7 +354,7 @@
       $('heroPlayers').textContent = allPlayers().length;
       $('heroMatches').textContent = Object.keys(state.groupMatches).length;
       $('heroCompleted').textContent = completedGroupMatches().length;
-      renderStandings(); renderBracket();
+      renderStandings(); renderBracket(); renderFixtures();
       if (state.admin) renderPlayerAdmin();
     }
 
@@ -320,6 +364,7 @@
       const form = new FormData(e.currentTarget);
       const player = { name:String(form.get('name')).trim(), gameId:String(form.get('gameId')).trim(), contact:String(form.get('contact')).trim(), createdAt:Date.now() };
       if (!player.name || !player.gameId || !player.contact) return toast('Please complete every field.', true);
+      if (allPlayers().length >= MAX_PLAYERS) return toast('Registration is full. The tournament is limited to 20 players.', true);
       if (allPlayers().some(p => p.gameId.toLowerCase() === player.gameId.toLowerCase())) return toast('That in-game ID is already registered.', true);
       const btn = $('registerBtn'); btn.disabled=true; btn.textContent='Submitting…';
       try {
@@ -350,14 +395,50 @@
       if(!state.admin || !confirm('Delete this player? Existing matches involving them will remain but will not count in standings.')) return;
       try { await state.db.ref('players/'+id).remove(); toast('Player deleted.'); } catch(err){handleFirebaseError(err);}
     });
+    $('adminPlayersBody').addEventListener('change', async e => {
+      const select=e.target.closest('[data-player-group]'); if(!select||!state.admin||!state.db) return;
+      const id=select.dataset.playerGroup, group=select.value;
+      if(group && allPlayers().filter(p=>p.group===group && p.id!==id).length>=GROUP_CAPACITY) { toast(`Group ${group} already has five players.`,true); renderPlayerAdmin(); return; }
+      try { await state.db.ref('players/'+id+'/group').set(group || null); toast(group?`Player assigned to Group ${group}.`:'Player unassigned.'); }
+      catch(err){handleFirebaseError(err);}
+    });
+    $('generateFixturesBtn').addEventListener('click', async () => {
+      if(!state.admin||!state.db) return;
+      const players=allPlayers();
+      if(players.length<2) return toast('At least two players must register first.',true);
+      const unassigned=players.filter(p=>!GROUPS.includes(p.group));
+      if(unassigned.length) return toast(`Assign all players to groups first (${unassigned.length} unassigned).`,true);
+      const tooMany=GROUPS.find(g=>players.filter(p=>p.group===g).length>GROUP_CAPACITY);
+      if(tooMany) return toast(`Group ${tooMany} exceeds five players.`,true);
+      if(Object.keys(state.groupMatches).length) return toast('Fixtures already exist. Delete existing fixtures from Group Scores before generating a new schedule, to avoid overwriting results.',true);
+      const updates={}; let total=0;
+      GROUPS.forEach(group=>{
+        const members=players.filter(p=>p.group===group);
+        for(let i=0;i<members.length;i++) for(let j=i+1;j<members.length;j++) {
+          const key=state.db.ref('groupMatches').push().key;
+          updates[key]={p1:members[i].id,p2:members[j].id,group,s1:'',s2:'',updatedAt:Date.now(),fixture:true}; total++;
+        }
+      });
+      if(!total) return toast('Each assigned group needs at least two players to create fixtures.',true);
+      try { await state.db.ref('groupMatches').update(updates); toast(`${total} fixtures generated successfully.`); document.getElementById('fixtures').scrollIntoView({behavior:'smooth'}); }
+      catch(err){handleFirebaseError(err);}
+    });
+    document.querySelectorAll('[data-fixture-filter]').forEach(btn=>btn.addEventListener('click',()=>{
+      state.fixtureFilter=btn.dataset.fixtureFilter;
+      document.querySelectorAll('[data-fixture-filter]').forEach(b=>{const active=b===btn;b.classList.toggle('btn-primary',active);b.classList.toggle('btn-muted',!active);});
+      renderFixtures();
+    }));
+    $('fixtureGroupFilter').addEventListener('change',e=>{state.fixtureGroup=e.target.value;renderFixtures();});
     $('groupMatchForm').addEventListener('submit', async e => {
       e.preventDefault(); if(!state.admin||!state.db) return;
       const p1=$('groupP1').value,p2=$('groupP2').value,s1=$('groupS1').value,s2=$('groupS2').value;
       if(!p1||!p2||p1===p2) return toast('Choose two different players.',true);
+      const group1=state.players[p1]?.group, group2=state.players[p2]?.group;
+      if(!group1||!group2||group1!==group2) return toast('Both players must be assigned to the same group before saving a group-stage result.',true);
       if(s1===''||s2===''||Number(s1)<0||Number(s2)<0) return toast('Enter valid scores.',true);
       const existing=Object.entries(state.groupMatches).find(([,m]) => m && ((m.p1===p1&&m.p2===p2)||(m.p1===p2&&m.p2===p1)));
       const id=existing?.[0] || state.db.ref('groupMatches').push().key;
-      const record={p1,p2,s1:Number(s1),s2:Number(s2),updatedAt:Date.now()};
+      const record={...(existing?.[1]||{}),p1,p2,group:group1,s1:Number(s1),s2:Number(s2),updatedAt:Date.now(),fixture:true};
       // Keep the entered orientation consistent with the original fixture when updating a reversed pairing.
       if(existing && existing[1].p1===p2 && existing[1].p2===p1) { record.p1=p2; record.p2=p1; record.s1=Number(s2); record.s2=Number(s1); }
       try { await state.db.ref('groupMatches/'+id).set(record); e.currentTarget.reset(); toast('Group result saved; standings recalculated.'); }
@@ -367,6 +448,28 @@
       const btn=e.target.closest('[data-delete-match]'); if(!btn||!state.admin||!state.db) return;
       if(!confirm('Delete this group result?')) return;
       try { await state.db.ref('groupMatches/'+btn.dataset.deleteMatch).remove(); toast('Group result deleted.'); } catch(err){handleFirebaseError(err);}
+    });
+    $('generateKnockoutBtn').addEventListener('click', async () => {
+      if(!state.admin || !state.db) return;
+      const fixtures=Object.values(state.groupMatches).filter(m=>m && m.p1 && m.p2);
+      if(!fixtures.length) return toast('Generate group fixtures first.',true);
+      const unfinished=fixtures.filter(m=>m.s1==='' || m.s1===null || m.s1===undefined || m.s2==='' || m.s2===null || m.s2===undefined || !Number.isFinite(Number(m.s1)) || !Number.isFinite(Number(m.s2)));
+      if(unfinished.length) return toast(`${unfinished.length} group match(es) still need scores before qualification.`,true);
+      const qualified={};
+      for(const group of GROUPS) {
+        const table=computeStandings(group);
+        if(table.length<2) return toast(`Group ${group} needs at least two assigned players.`,true);
+        qualified[group]=table.slice(0,2);
+      }
+      if(!confirm('Generate quarterfinals from the current top two in each group? Existing quarterfinal participants and scores will be replaced.')) return;
+      const qfs={
+        qf1:{p1:qualified.A[0].id,p2:qualified.B[1].id,s1:'',s2:'',updatedAt:Date.now()},
+        qf2:{p1:qualified.B[0].id,p2:qualified.A[1].id,s1:'',s2:'',updatedAt:Date.now()},
+        qf3:{p1:qualified.C[0].id,p2:qualified.D[1].id,s1:'',s2:'',updatedAt:Date.now()},
+        qf4:{p1:qualified.D[0].id,p2:qualified.C[1].id,s1:'',s2:'',updatedAt:Date.now()}
+      };
+      try { await state.db.ref('knockout').update(qfs); toast('Quarterfinals generated from group standings.'); document.getElementById('brackets').scrollIntoView({behavior:'smooth'}); }
+      catch(err){handleFirebaseError(err);}
     });
     $('knockoutEditor').addEventListener('submit', async e => {
       const form=e.target.closest('[data-knockout-form]'); if(!form) return;
@@ -388,8 +491,10 @@
     // Initial empty bracket, then replace with live Firebase values when configured.
     STAGES.forEach(s=>{ if(!state.knockout[s.key]) state.knockout[s.key]={p1:'',p2:'',s1:'',s2:''}; });
     renderBracket();
+    renderStandings(); renderFixtures();
     initFirebase();
   </script>
 </body>
 </html>
+
 
